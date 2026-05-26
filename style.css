@@ -143,3 +143,22 @@ body::-webkit-scrollbar {
 .icon-bump:hover {
     transform: translateY(-3px) scale(1.08);
 }
+
+/* Custom CSS Filters to Tint PNG Icon into Theme Palette Colors */
+.custom-fault-tint {
+    filter: invert(34%) sepia(11%) saturate(1116%) hue-rotate(65deg) brightness(97%) contrast(85%);
+}
+
+.custom-fault-tint.active-green {
+    filter: invert(53%) sepia(10%) saturate(1450%) hue-rotate(66deg) brightness(91%) contrast(82%) !important;
+}
+
+.sidebar-fault-icon {
+    width: 20px;
+    height: 20px;
+    filter: invert(24%) sepia(6%) saturate(1517%) hue-rotate(178deg) brightness(94%) contrast(84%);
+}
+
+.menu-fault-tint {
+    filter: invert(49%) sepia(26%) saturate(1004%) hue-rotate(357deg) brightness(94%) contrast(89%);
+}
