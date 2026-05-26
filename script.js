@@ -1,6 +1,5 @@
 let activeTab = 'login';
 let currentScreenId = 'auth-screen';
-let isOfflineMode = false;
 
 // Google Maps Specific Objects
 let map = null;
@@ -432,45 +431,6 @@ function togglePasswordVisibility(id) {
     }
 }
 
-function toggleOfflineMode() {
-    isOfflineMode = !isOfflineMode;
-    const offlineModeIcon = document.getElementById('offline-mode-icon');
-    const offlineModeText = document.getElementById('offline-mode-text');
-    const homeOfflineIcon = document.getElementById('home-offline-icon');
-    const homeOfflineText = document.getElementById('home-offline-text');
-    const phoneFrame = document.getElementById('phone-template');
-
-    if (isOfflineMode) {
-        phoneFrame.classList.add('grayscale-mode');
-        offlineModeIcon.classList.remove('fa-plug-circle-xmark');
-        offlineModeIcon.classList.add('fa-plug-circle-bolt');
-        offlineModeText.innerText = 'Online State';
-        
-        if (homeOfflineIcon) {
-            homeOfflineIcon.classList.remove('fa-plug-circle-xmark', 'text-gray-500');
-            homeOfflineIcon.classList.add('fa-plug-circle-bolt', 'text-app-blue');
-        }
-        if (homeOfflineText) homeOfflineText.innerText = 'Online State';
-
-        showMessageModal("Offline Cache Mode engaged. Mapping canvas traces use pre-fetched vector boundaries.");
-    } else {
-        phoneFrame.classList.remove('grayscale-mode');
-        offlineModeIcon.classList.remove('fa-plug-circle-bolt');
-        offlineModeIcon.classList.add('fa-plug-circle-xmark');
-        offlineModeText.innerText = 'Offline Mode';
-        
-         if (homeOfflineIcon) {
-            homeOfflineIcon.classList.remove('fa-plug-circle-bolt', 'text-app-blue');
-            homeOfflineIcon.classList.add('fa-plug-circle-xmark', 'text-gray-500');
-        }
-         if (homeOfflineText) homeOfflineText.innerText = 'Offline Mode';
-    }
-}
-
-function handleOfflineModeClick() {
-    toggleOfflineMode();
-}
-
 function toggleSidebar() {
     const mainUI = document.querySelectorAll('.main-ui-element');
     if (sidebar.classList.contains('open')) {
@@ -496,7 +456,6 @@ function handleTermsClick() {
 
 function handleLogout() {
     toggleSidebar();
-    if (isOfflineMode) toggleOfflineMode();
     navigateTo('auth-screen', 'left');
 }
 
