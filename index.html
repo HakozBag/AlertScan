@@ -203,19 +203,19 @@
                 <div class="w-full max-w-sm mx-auto mt-6 p-6 rounded-3xl bg-card-bg shadow-xl flex-grow overflow-y-auto overflow-x-hidden scrolling-content-area transition-colors duration-300">
                     <div class="space-y-4">
                         <h3 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">User Information</h3>
-                        <input type="text" placeholder="Full Operator Name" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medium-green outline-none bg-white text-gray-900">
-                        <input type="tel" placeholder="Primary Contact Number" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medium-green outline-none bg-white text-gray-900">
+                        <input id="operator-name-input" type="text" placeholder="Full Operator Name" value="John Doe" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medium-green outline-none bg-white text-gray-900">
+                        <input id="operator-phone-input" type="tel" placeholder="Primary Contact Number" value="+63 917 123 4567" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medium-green outline-none bg-white text-gray-900">
                         
                         <h3 class="text-lg font-semibold text-gray-700 border-b pb-2 mt-6 mb-4">Philippine Base Location</h3>
-                        <input type="text" placeholder="Street Address / Barangay" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medium-green outline-none bg-white text-gray-900">
-                        <input type="text" placeholder="Municipality / City Province" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medium-green outline-none bg-white text-gray-900">
+                        <input id="operator-brgy-input" type="text" placeholder="Street Address / Barangay" value="Barangay Central" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medium-green outline-none bg-white text-gray-900">
+                        <input id="operator-city-input" type="text" placeholder="Municipality / City Province" value="Makati City, Metro Manila" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medium-green outline-none bg-white text-gray-900">
                         
                         <h3 class="text-lg font-semibold text-gray-700 border-b pb-2 mt-6 mb-4">Regional Disaster Desk</h3>
-                        <input type="text" placeholder="Local MDRRMO Office Contact" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medium-green outline-none bg-white text-gray-900">
-                        <input type="tel" placeholder="Desk Hotline Assignment" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medium-green outline-none bg-white text-gray-900">
+                        <input type="text" placeholder="Local MDRRMO Office Contact" value="MDRRMO Makati Central Desk" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medium-green outline-none bg-white text-gray-900">
+                        <input type="tel" placeholder="Desk Hotline Assignment" value="(02) 8870-1000" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medium-green outline-none bg-white text-gray-900">
                         
                         <div class="flex items-center mt-6">
-                            <input id="share-location-checkbox" type="checkbox" class="w-4 h-4 text-medium-green border-gray-300 rounded focus:ring-medium-green">
+                            <input id="share-location-checkbox" type="checkbox" checked class="w-4 h-4 text-medium-green border-gray-300 rounded focus:ring-medium-green">
                             <label for="share-location-checkbox" class="ml-2 text-sm text-gray-700">Allow automatic scan geometry lookups</label>
                         </div>
                     </div>
@@ -308,8 +308,30 @@
             </div>
             
             <div id="map-screen" class="screen screen-hidden-right pt-0 pb-0 flex flex-col">
-                <div class="flex-grow relative">
+                <div class="flex-grow relative overflow-hidden">
                     <div id="map-container" class="w-full h-full bg-gray-200"></div>
+
+                    <div id="cctv-overlay" class="absolute inset-0 pointer-events-none border-[14px] border-emerald-500/20 opacity-0 transition-opacity duration-500 z-40">
+                        <div class="absolute top-4 left-4 font-mono text-[10px] text-emerald-400 bg-black/60 px-2 py-1 rounded tracking-widest uppercase animate-pulse">
+                            <i class="fas fa-video mr-1 text-red-500"></i> LIVE SCAN FEED // CAM_01
+                        </div>
+                        <div class="absolute top-4 right-4 font-mono text-[10px] text-emerald-400 bg-black/60 px-2 py-1 rounded tracking-wider">
+                            LAT: <span id="hud-lat">14.5615</span> <br> LNG: <span id="hud-lng">121.0260</span>
+                        </div>
+                        <div class="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none">
+                            <div class="border-b border-r border-emerald-500/20"></div>
+                            <div class="border-b border-r border-emerald-500/20"></div>
+                            <div class="border-b border-emerald-500/20"></div>
+                            <div class="border-b border-r border-emerald-500/20"></div>
+                            <div class="border-b border-r border-emerald-500/30 flex items-center justify-center">
+                                <div class="w-8 h-8 border border-dashed border-emerald-400/60 rounded-full animate-spin"></div>
+                            </div>
+                            <div class="border-b border-emerald-500/20"></div>
+                            <div class="border-r border-emerald-500/20"></div>
+                            <div class="border-r border-emerald-500/20"></div>
+                            <div></div>
+                        </div>
+                    </div>
 
                     <div id="map-features-nav" class="absolute top-[80px] left-1/2 -translate-x-1/2 flex flex-row flex-nowrap overflow-hidden p-1 bg-white/80 backdrop-blur-sm rounded-full shadow-xl z-45 w-[94%]">
                         <button id="map-nav-fault" onclick="toggleMapFeatures('faults', this)" class="map-feature-btn flex-1 flex items-center justify-center py-2 px-1 rounded-full text-[9px] font-bold text-gray-700 transition duration-150 tracking-tight whitespace-nowrap">
@@ -467,6 +489,20 @@
         </div>
     </div>
 
+    <div id="scan-telemetry-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-emerald-500/30 p-6 rounded-2xl shadow-2xl w-full max-w-xs font-mono text-emerald-400">
+            <div class="flex items-center justify-between border-b border-emerald-500/30 pb-2 mb-4">
+                <span class="text-xs font-bold tracking-widest animate-pulse">📡 ALERTSCAN TERMINAL</span>
+                <div class="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
+            </div>
+            <div id="telemetry-log" class="text-[10px] space-y-2 min-h-[160px] max-h-[220px] overflow-y-auto mb-4 scrolling-content-area">
+                </div>
+            <button id="telemetry-close-btn" disabled onclick="closeTelemetryModal()" class="w-full py-2.5 rounded-xl bg-emerald-600 text-gray-950 font-bold text-xs uppercase tracking-wider opacity-40 cursor-not-allowed transition duration-200">
+                Processing Telemetry...
+            </button>
+        </div>
+    </div>
+
     <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-xs text-center">
             <h3 class="text-xl font-bold text-medium-green mb-4">AlertScan Terminal</h3>
@@ -477,7 +513,7 @@
         </div>
     </div>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=drawing,geometry,places"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=drawing,geometry,places"></script>
     <script src="script.js"></script>
 </body>
 </html>
