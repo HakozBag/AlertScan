@@ -1,6 +1,6 @@
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #1f2937;
+    background-color: #11151d;
     overflow: hidden;
     display: flex;
     justify-content: center;
@@ -13,9 +13,12 @@ body::-webkit-scrollbar {
     display: none;
 }
 .phone-frame {
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     background-color: white; 
-    transition: transform 300ms ease-in-out; 
+    transition: filter 500ms ease-in-out, transform 300ms ease-in-out; 
+}
+.grayscale-mode {
+    filter: grayscale(100%);
 }
 
 .main-ui-element {
@@ -33,7 +36,7 @@ body::-webkit-scrollbar {
     left: 0;
     transition: transform 400ms ease-in-out;
     background-color: white; 
-    color: black;
+    color: #1e293b;
     z-index: 5;
     overflow-y: auto; 
     overflow-x: hidden;
@@ -70,7 +73,7 @@ body::-webkit-scrollbar {
 }
 
 .header-border {
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .bottom-nav {
@@ -81,7 +84,7 @@ body::-webkit-scrollbar {
 
 #sidebar {
     background-color: white;
-    box-shadow: 8px 0 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 8px 0 25px rgba(15, 23, 42, 0.08);
     position: absolute;
     top: 0;
     left: 0;
@@ -100,7 +103,7 @@ body::-webkit-scrollbar {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(15, 23, 42, 0.3);
     z-index: 29;
     display: none;
 }
@@ -115,7 +118,7 @@ body::-webkit-scrollbar {
 .scrolling-content-area::-webkit-scrollbar { display: none; }
 
 .gradient-button-bg {
-    background-image: linear-gradient(to right, #5691b2, #afe6bb);
+    background-image: linear-gradient(to right, #d20f0f, #e82f0e);
 }
 
 .hidden-content {
@@ -133,7 +136,7 @@ body::-webkit-scrollbar {
 }
 .interactive-hover:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
 }
 
 .icon-bump {
@@ -144,20 +147,21 @@ body::-webkit-scrollbar {
     transform: translateY(-3px) scale(1.08);
 }
 
+/* Custom Tint Filters Optimized for Teal/Slate Palette */
 .custom-fault-tint {
-    filter: invert(34%) sepia(11%) saturate(1116%) hue-rotate(65deg) brightness(97%) contrast(85%);
+    filter: invert(48%) sepia(13%) saturate(931%) hue-rotate(183deg) brightness(92%) contrast(87%);
 }
 
 .custom-fault-tint.active-green {
-    filter: invert(53%) sepia(10%) saturate(1450%) hue-rotate(66deg) brightness(91%) contrast(82%) !important;
+    filter: invert(41%) sepia(90%) saturate(1022%) hue-rotate(159deg) brightness(91%) contrast(93%) !important;
 }
 
 .sidebar-fault-icon {
     width: 20px;
     height: 20px;
-    filter: invert(24%) sepia(6%) saturate(1517%) hue-rotate(178deg) brightness(94%) contrast(84%);
+    filter: invert(48%) sepia(13%) saturate(931%) hue-rotate(183deg) brightness(92%) contrast(87%);
 }
 
 .menu-fault-tint {
-    filter: invert(49%) sepia(26%) saturate(1004%) hue-rotate(357deg) brightness(94%) contrast(89%);
+    filter: invert(41%) sepia(90%) saturate(1022%) hue-rotate(159deg) brightness(91%) contrast(93%);
 }
