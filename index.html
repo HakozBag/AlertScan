@@ -240,29 +240,29 @@
 
                     <h2 class="text-2xl font-bold text-gray-800 mb-4">Geospatial Scanning Framework</h2>
                     <div class="grid grid-cols-3 gap-3 mb-6">
-                        <div onclick="navigateTo('map-screen', 'left'); selectScanMode('polygon')" class="flex flex-col items-center p-3 bg-card-bg rounded-xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer">
-                            <i class="fas fa-draw-polygon text-2xl text-app-blue mb-1"></i>
-                            <span class="text-xs font-semibold text-gray-700 text-center">Scan Area</span>
+                        <div onclick="navigateTo('map-screen', 'left'); selectScanMode('polygon')" class="flex flex-col items-center justify-start p-3 h-24 bg-card-bg rounded-xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer">
+                            <i class="fas fa-draw-polygon text-2xl text-app-blue mb-2"></i>
+                            <span class="text-xs font-semibold text-gray-700 text-center leading-tight">Scan Area</span>
                         </div>
-                        <div onclick="navigateTo('map-screen', 'left'); selectScanMode('faultline')" class="flex flex-col items-center p-3 bg-card-bg rounded-xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer">
-                            <i class="fas fa-bezier-curve text-2xl text-red-500 mb-1"></i>
-                            <span class="text-xs font-semibold text-gray-700 text-center">Fault Trace</span>
+                        <div onclick="navigateTo('map-screen', 'left'); selectScanMode('faultline')" class="flex flex-col items-center justify-start p-3 h-24 bg-card-bg rounded-xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer">
+                            <i class="fas fa-bezier-curve text-2xl text-red-500 mb-2"></i>
+                            <span class="text-xs font-semibold text-gray-700 text-center leading-tight">Fault Trace</span>
                         </div>
-                         <div onclick="navigateTo('contacts-screen', 'left')" class="flex flex-col items-center p-3 bg-card-bg rounded-xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer">
-                            <i class="fas fa-phone-flip text-2xl text-medium-green mb-1"></i>
-                            <span class="text-xs font-semibold text-gray-700 text-center">Hotlines</span>
+                         <div onclick="navigateTo('contacts-screen', 'left')" class="flex flex-col items-center justify-start p-3 h-24 bg-card-bg rounded-xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer">
+                            <i class="fas fa-phone-flip text-2xl text-medium-green mb-2"></i>
+                            <span class="text-xs font-semibold text-gray-700 text-center leading-tight">Hotlines</span>
                         </div>
-                        <div onclick="handleOfflineModeClick()" class="flex flex-col items-center p-3 bg-card-bg rounded-xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer">
-                            <i id="home-offline-icon" class="fas fa-plug-circle-xmark text-2xl text-gray-500 mb-1"></i>
-                            <span id="home-offline-text" class="text-xs font-semibold text-gray-700 text-center">Offline Maps</span>
+                        <div onclick="handleOfflineModeClick()" class="flex flex-col items-center justify-start p-3 h-24 bg-card-bg rounded-xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer">
+                            <i id="home-offline-icon" class="fas fa-plug-circle-xmark text-2xl text-gray-500 mb-2"></i>
+                            <span id="home-offline-text" class="text-xs font-semibold text-gray-700 text-center leading-tight">Offline Maps</span>
                         </div>
-                         <div onclick="navigateTo('tips-screen', 'left')" class="flex flex-col items-center p-3 bg-card-bg rounded-xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer">
-                            <i class="fas fa-circle-info text-2xl text-yellow-600 mb-1"></i>
-                            <span class="text-xs font-semibold text-gray-700 text-center">Risk Guide</span>
+                         <div onclick="navigateTo('tips-screen', 'left')" class="flex flex-col items-center justify-start p-3 h-24 bg-card-bg rounded-xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer">
+                            <i class="fas fa-circle-info text-2xl text-yellow-600 mb-2"></i>
+                            <span class="text-xs font-semibold text-gray-700 text-center leading-tight">Risk Guide</span>
                         </div>
-                         <div onclick="triggerScanReport()" class="flex flex-col items-center p-3 bg-red-500/80 rounded-xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer">
-                            <i class="fas fa-print text-2xl text-white mb-1"></i>
-                            <span class="text-xs font-bold text-white text-center">Report Hotline</span>
+                         <div onclick="triggerScanReport()" class="flex flex-col items-center justify-start p-3 h-24 bg-red-500/80 rounded-xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer">
+                            <i class="fas fa-print text-2xl text-white mb-2"></i>
+                            <span class="text-xs font-bold text-white text-center leading-tight">Report Hotline</span>
                         </div>
                     </div>
                     
@@ -311,15 +311,15 @@
                 <div class="flex-grow relative">
                     <div id="map-container" class="w-full h-full bg-gray-200"></div>
 
-                    <div id="map-features-nav" class="absolute top-[80px] left-1/2 -translate-x-1/2 flex space-x-1 p-1 bg-white/80 backdrop-blur-sm rounded-full shadow-xl z-45 max-w-[95%] overflow-x-auto whitespace-nowrap">
-                        <button id="map-nav-fault" onclick="toggleMapFeatures('faults', this)" class="map-feature-btn flex items-center px-3 py-2 rounded-full text-xs font-medium text-gray-700 transition duration-150">
-                            <i class="fas fa-bezier-curve mr-1 text-red-500"></i> Active Faults
+                    <div id="map-features-nav" class="absolute top-[80px] left-1/2 -translate-x-1/2 flex flex-row flex-nowrap overflow-hidden p-1 bg-white/80 backdrop-blur-sm rounded-full shadow-xl z-45 w-[94%]">
+                        <button id="map-nav-fault" onclick="toggleMapFeatures('faults', this)" class="map-feature-btn flex-1 flex items-center justify-center py-2 px-1 rounded-full text-[9px] font-bold text-gray-700 transition duration-150 tracking-tight whitespace-nowrap">
+                            <i class="fas fa-bezier-curve mr-0.5 text-red-500"></i>Active Faults
                         </button>
-                        <button id="map-nav-draw" onclick="toggleMapFeatures('draw', this)" class="map-feature-btn flex items-center px-3 py-2 rounded-full text-xs font-medium text-gray-700 transition duration-150">
-                            <i class="fas fa-pencil-ruler mr-1 text-app-blue"></i> Draw Polygon
+                        <button id="map-nav-draw" onclick="toggleMapFeatures('draw', this)" class="map-feature-btn flex-1 flex items-center justify-center py-2 px-1 rounded-full text-[9px] font-bold text-gray-700 transition duration-150 tracking-tight whitespace-nowrap">
+                            <i class="fas fa-pencil-ruler mr-0.5 text-app-blue"></i>Draw Polygon
                         </button>
-                        <button onclick="toggleMapFeatures('provinces', this)" class="map-feature-btn flex items-center px-3 py-2 rounded-full text-xs font-medium text-gray-700 transition duration-150">
-                            <i class="fas fa-earth-asia mr-1 text-medium-green"></i> PH Hotspots
+                        <button onclick="toggleMapFeatures('provinces', this)" class="map-feature-btn flex-1 flex items-center justify-center py-2 px-1 rounded-full text-[9px] font-bold text-gray-700 transition duration-150 tracking-tight whitespace-nowrap">
+                            <i class="fas fa-earth-asia mr-0.5 text-medium-green"></i>PH Hotspots
                         </button>
                     </div>
 
