@@ -144,7 +144,6 @@ body::-webkit-scrollbar {
     transform: translateY(-3px) scale(1.08);
 }
 
-/* Custom CSS Filters to Tint PNG Icon into Theme Palette Colors */
 .custom-fault-tint {
     filter: invert(34%) sepia(11%) saturate(1116%) hue-rotate(65deg) brightness(97%) contrast(85%);
 }
