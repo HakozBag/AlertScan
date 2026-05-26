@@ -2,30 +2,38 @@ let activeTab = 'login';
 let currentScreenId = 'auth-screen';
 
 let map = null;
+let espanaMap = null;
 let drawingManager = null;
-let activePolylineFault = null;
 let currentUserMarker = null;
 
-let activeMapPolygons = [];
-let activeMapMarkers = [];
-let activeHotspotCircles = [];
+// Feature Layer Trackers
+let faultArrows = [];
+let hotspotCircles = [];
+let hotspotMarkers = [];
+let userDrawnShapes = []; // Tracks custom shapes created via drawing manager
+
+let espanaCameraMarkers = [];
+let activeCameraIndex = null;
 
 const PH_BASE_LOCATION = { lat: 14.5615, lng: 121.0260 };
-let currentScannedLocationName = "Makati City, Metro Manila";
+const ESPANA_LOCK_LOCATION = { lat: 14.6080, lng: 121.0015 };
 
-const MARIKINA_WEST_FAULT_COORDS = [
-    { lat: 14.7022, lng: 121.1010 },
-    { lat: 14.6545, lng: 121.0832 },
-    { lat: 14.5988, lng: 121.0711 },
-    { lat: 14.5510, lng: 121.0640 },
-    { lat: 14.4820, lng: 121.0425 },
-    { lat: 14.3630, lng: 121.0410 }
+const ESPANA_CCTV_NODES = [
+    { id: "CAM-ESP-03", name: "España Blvd / Lacson Ave", lat: 14.6091, lng: 120.9978, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSyZNifOnBc7Cy48LHLUnXTzP_AB7rTErqoQ&s" },
+    { id: "CAM-ESP-04", name: "España Blvd / Vicente Cruz", lat: 14.6108, lng: 121.0024, image: "https://sa.kapamilya.com/absnews/abscbnnews/media/2023/news/08/31/20230831-habagat-flooding-manila-mh2-s.jpg" },
+    { id: "CAM-ESP-05", name: "España Blvd / Blumentritt Rd", lat: 14.6125, lng: 121.0071, image: "https://images.gmanews.tv/v3/webpics/v3/2014/02/2014_02_12_16_50_24.jpg " }
 ];
 
-const PH_HOTSPOT_LOCATIONS = [
-    { name: "Marikina Fault Core", lat: 14.6300, lng: 121.0900, risk: "Critical Exposure Level" },
-    { name: "Leyte Tectonic Segment", lat: 10.7000, lng: 124.8000, risk: "High Historical Shift Activity" },
-    { name: "Surigao Subduction Node", lat: 9.7800, lng: 125.5000, risk: "Moderate Seismicity Trace" }
+const ACTIVE_FAULT_ARROW_LOCATIONS = [
+    { lat: 14.6545, lng: 121.0832 },
+    { lat: 14.5988, lng: 121.0711 },
+    { lat: 14.5510, lng: 121.0640 }
+];
+
+const PH_HOTSPOT_DATA = [
+    { name: "Marikina Core Zone", lat: 14.6340, lng: 121.0990, radius: 2500 },
+    { name: "Taguig Danger Pocket", lat: 14.5170, lng: 121.0500, radius: 1800 },
+    { name: "Pasig Convergence Area", lat: 14.5660, lng: 121.0820, radius: 2000 }
 ];
 
 const loginTab = document.getElementById('login-tab');
@@ -48,313 +56,258 @@ function initMap() {
         map = new google.maps.Map(document.getElementById('map-container'), {
             center: PH_BASE_LOCATION,
             zoom: 12,
-            disableDefaultUI: true,
-            zoomControl: false,
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-            styles: [
-                { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }
-            ]
+            disableDefaultUI: false,
+            zoomControl: true,
+            gestureHandling: "cooperative",
+            mapTypeId: google.maps.MapTypeId.ROADMAP
         });
 
         currentUserMarker = new google.maps.Marker({
             position: PH_BASE_LOCATION,
             map: map,
-            title: "Operator Location Node",
             icon: {
                 path: google.maps.SymbolPath.CIRCLE,
                 scale: 7,
-                fillColor: "#10B981",
+                fillColor: "#FD1F4A",
                 fillOpacity: 1,
                 strokeColor: "#ffffff",
                 strokeWeight: 2
             }
         });
 
-        map.addListener('bounds_changed', () => {
-            const center = map.getCenter();
-            document.getElementById('hud-lat').innerText = center.lat().toFixed(4);
-            document.getElementById('hud-lng').innerText = center.lng().toFixed(4);
-        });
-
         drawingManager = new google.maps.drawing.DrawingManager({
             drawingMode: null,
             drawingControl: false, 
             polygonOptions: {
-                fillColor: '#10b981',
-                fillOpacity: 0.25,
-                strokeColor: '#10b981',
+                fillColor: '#FD1F4A',
+                fillOpacity: 0.2,
+                strokeColor: '#FD1F4A',
                 strokeWeight: 2,
-                clickable: true,
                 editable: true,
-                zIndex: 1
+                clickable: true
+            },
+            polylineOptions: {
+                strokeColor: '#FD1F4A',
+                strokeWeight: 3,
+                editable: true,
+                clickable: true
             }
         });
         drawingManager.setMap(map);
 
-        google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
-            activeMapPolygons.push(polygon);
-            drawingManager.setDrawingMode(null); 
-            triggerScanReport();
+        google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event) {
+            userDrawnShapes.push(event.overlay);
+            updateUndoButtonState();
+        });
+        
+        createFaultAssets();
+        createHotspotAssets();
+    }
+}
+
+function createFaultAssets() {
+    ACTIVE_FAULT_ARROW_LOCATIONS.forEach(loc => {
+        let arrowMarker = new google.maps.Marker({
+            position: loc,
+            map: null,
+            icon: {
+                path: "M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z",
+                fillColor: "#FD1F4A",
+                fillOpacity: 1,
+                strokeColor: "#ffffff",
+                strokeWeight: 1.5,
+                scale: 1.4,
+                rotation: 145,
+                anchor: new google.maps.Point(12, 12)
+            }
+        });
+        faultArrows.push(arrowMarker);
+    });
+}
+
+function createHotspotAssets() {
+    PH_HOTSPOT_DATA.forEach(data => {
+        let circle = new google.maps.Circle({
+            map: null,
+            center: { lat: data.lat, lng: data.lng },
+            radius: data.radius,
+            fillColor: "#FD1F4A",
+            fillOpacity: 0.12,
+            strokeColor: "#FD1F4A",
+            strokeWeight: 1.5
+        });
+        hotspotCircles.push(circle);
+
+        let pinMarker = new google.maps.Marker({
+            position: { lat: data.lat, lng: data.lng },
+            map: null,
+            title: data.name,
+            icon: {
+                path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+                fillColor: "#FD1F4A",
+                fillOpacity: 1,
+                strokeColor: "#ffffff",
+                strokeWeight: 1.5,
+                scale: 1.5,
+                anchor: new google.maps.Point(12, 24)
+            }
+        });
+        hotspotMarkers.push(pinMarker);
+    });
+}
+
+function toggleMapFeatures(featureKey, elementReference) {
+    document.querySelectorAll('.map-feature-btn').forEach(btn => {
+        btn.classList.remove('bg-medium-red', 'text-white');
+        btn.classList.add('text-slate-700');
+    });
+    if (elementReference) {
+        elementReference.classList.add('bg-medium-red', 'text-white');
+    }
+
+    const undoControl = document.getElementById('map-undo-control');
+    if (undoControl) undoControl.classList.add('hidden');
+
+    drawingManager.setDrawingMode(null);
+    faultArrows.forEach(arrow => arrow.setMap(null));
+    hotspotCircles.forEach(c => c.setMap(null));
+    hotspotMarkers.forEach(m => m.setMap(null));
+    userDrawnShapes.forEach(shape => shape.setMap(null)); 
+
+    if (featureKey === 'faults') {
+        faultArrows.forEach(arrow => arrow.setMap(map));
+    } else if (featureKey === 'draw') {
+        drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
+        userDrawnShapes.forEach(shape => shape.setMap(map)); 
+        if (undoControl) undoControl.classList.remove('hidden');
+        updateUndoButtonState();
+    } else if (featureKey === 'provinces') {
+        hotspotCircles.forEach(c => c.setMap(map));
+        hotspotMarkers.forEach(m => m.setMap(map));
+    }
+}
+
+function undoLastDrawnShape() {
+    if (userDrawnShapes.length > 0) {
+        let lastShape = userDrawnShapes.pop();
+        lastShape.setMap(null); 
+        updateUndoButtonState();
+    }
+}
+
+function clearAllDrawnShapes() {
+    while(userDrawnShapes.length > 0) {
+        let shape = userDrawnShapes.pop();
+        shape.setMap(null);
+    }
+    updateUndoButtonState();
+}
+
+function updateUndoButtonState() {
+    const undoBtn = document.getElementById('map-undo-btn');
+    const clearBtn = document.getElementById('map-clear-btn');
+    if (!undoBtn || !clearBtn) return;
+
+    if (userDrawnShapes.length === 0) {
+        undoBtn.disabled = true;
+        undoBtn.classList.add('opacity-40', 'cursor-not-allowed');
+        clearBtn.disabled = true;
+        clearBtn.classList.add('opacity-40', 'cursor-not-allowed');
+    } else {
+        undoBtn.disabled = false;
+        undoBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+        clearBtn.disabled = false;
+        clearBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+    }
+}
+
+function initEspanaMap() {
+    if (espanaMap === null) {
+        espanaMap = new google.maps.Map(document.getElementById('espana-map-container'), {
+            center: ESPANA_LOCK_LOCATION,
+            zoom: 15,
+            disableDefaultUI: true,
+            gestureHandling: "none", 
+            zoomControl: false,
+            draggable: false, 
+            scrollwheel: false,
+            disableDoubleClickZoom: true,
+            keyboardShortcuts: false
         });
 
-        const defaultButton = document.getElementById('map-nav-fault');
-        if (defaultButton) {
-            toggleMapFeatures('faults', defaultButton);
-        }
+        ESPANA_CCTV_NODES.forEach((cam, index) => {
+            let mkr = new google.maps.Marker({
+                position: { lat: cam.lat, lng: cam.lng },
+                map: espanaMap,
+                title: cam.name,
+                icon: {
+                    path: "M16 16v-3.5c0-.83-.67-1.5-1.5-1.5H11V9h1.5c.83 0 1.5-.67 1.5-1.5V4c0-.83-.67-1.5-1.5-1.5h-5C6.67 2.5 6 3.17 6 4v3.5C6 8.33 6.67 9 7.5 9H9v2H5.5C4.67 11 4 11.67 4 12.5V16h12z",
+                    fillColor: "#FD1F4A",
+                    fillOpacity: 1,
+                    strokeColor: "#ffffff",
+                    strokeWeight: 1.5,
+                    scale: 1.5
+                }
+            });
+
+            mkr.addListener('click', () => {
+                launchCctvMonitor(index);
+            });
+            espanaCameraMarkers.push(mkr);
+        });
     } else {
-        google.maps.event.trigger(map, 'resize');
-        map.setCenter(PH_BASE_LOCATION);
+        google.maps.event.trigger(espanaMap, 'resize');
+        espanaMap.setCenter(ESPANA_LOCK_LOCATION);
     }
+}
+
+function launchCctvMonitor(index) {
+    activeCameraIndex = index;
+    const camData = ESPANA_CCTV_NODES[index];
+    document.getElementById('monitor-cam-id').innerText = `${camData.id} // ${camData.name}`;
+    document.getElementById('monitor-cam-coords').innerText = `LAT: ${camData.lat.toFixed(4)} | LNG: ${camData.lng.toFixed(4)}`;
+    document.getElementById('monitor-image-placeholder').src = camData.image;
+    document.getElementById('cctv-monitor-view').classList.remove('hidden');
+}
+
+function exitCctvMonitor() {
+    document.getElementById('cctv-monitor-view').classList.add('hidden');
+    activeCameraIndex = null;
+}
+
+function nextCctvMonitor() {
+    if (activeCameraIndex === null) return;
+    let nextIndex = (activeCameraIndex + 1) % ESPANA_CCTV_NODES.length;
+    launchCctvMonitor(nextIndex);
 }
 
 function geocodeSearch() {
     const query = document.getElementById('map-search-bar').value;
     if (!query || !map) return;
-
     const geocoder = new google.maps.Geocoder();
     geocoder.geocode({ address: query + ", Philippines" }, function(results, status) {
         if (status === "OK" && results[0]) {
             map.setCenter(results[0].geometry.location);
             map.setZoom(13);
-            currentScannedLocationName = results[0].formatted_address;
-            
-            let searchMarker = new google.maps.Marker({
-                map: map,
-                position: results[0].geometry.location,
-                animation: google.maps.Animation.DROP
-            });
-            activeMapMarkers.push(searchMarker);
-            triggerCctvFlash();
-        } else {
-            showMessageModal("Unable to isolate administrative boundaries for specified criteria. Try another Philippine municipality name.");
         }
     });
-}
-
-function triggerCctvFlash() {
-    const overlay = document.getElementById('cctv-overlay');
-    overlay.style.opacity = '1';
-    setTimeout(() => { overlay.style.opacity = '0.4'; }, 600);
-}
-
-function selectScanMode(mode) {
-    setTimeout(() => {
-        if (!map || !drawingManager) initMap();
-        if (mode === 'polygon') {
-            drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
-            const drawButton = document.getElementById('map-nav-draw');
-            if (drawButton) toggleMapFeatures('draw', drawButton);
-        } else if (mode === 'faultline') {
-            const faultButton = document.getElementById('map-nav-fault');
-            if (faultButton) toggleMapFeatures('faults', faultButton);
-        }
-    }, 500);
-}
-
-function clearMapOverlays() {
-    if (activePolylineFault) {
-        activePolylineFault.setMap(null);
-        activePolylineFault = null;
-    }
-    activeMapPolygons.forEach(p => p.setMap(null));
-    activeMapPolygons = [];
-    activeMapMarkers.forEach(m => m.setMap(null));
-    activeMapMarkers = [];
-    activeHotspotCircles.forEach(c => c.setMap(null));
-    activeHotspotCircles = [];
-    
-    if (drawingManager) {
-        drawingManager.setDrawingMode(null);
-    }
-}
-
-function toggleMapFeatures(featureKey, elementReference) {
-    clearMapOverlays();
-    triggerCctvFlash();
-
-    document.querySelectorAll('.map-feature-btn').forEach(btn => {
-        btn.classList.remove('bg-app-blue', 'text-white');
-        btn.classList.add('text-gray-700');
-    });
-
-    if (elementReference) {
-        elementReference.classList.add('bg-app-blue', 'text-white');
-        elementReference.classList.remove('text-gray-700');
-    }
-
-    if (featureKey === 'faults') {
-        document.getElementById('cctv-overlay').style.opacity = '0.5';
-        activePolylineFault = new google.maps.Polyline({
-            path: MARIKINA_WEST_FAULT_COORDS,
-            geodesic: true,
-            strokeColor: '#DC2626',
-            strokeOpacity: 0.85,
-            strokeWeight: 4,
-            map: map
-        });
-
-        MARIKINA_WEST_FAULT_COORDS.forEach((coord, index) => {
-            if (index % 2 === 0) {
-                let faultMarker = new google.maps.Marker({
-                    position: coord,
-                    map: map,
-                    icon: {
-                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                        scale: 2.5,
-                        strokeColor: "#DC2626"
-                    }
-                });
-                activeMapMarkers.push(faultMarker);
-            }
-        });
-        map.setCenter(MARIKINA_WEST_FAULT_COORDS[2]);
-        map.setZoom(11);
-
-    } else if (featureKey === 'draw') {
-        document.getElementById('cctv-overlay').style.opacity = '0.8';
-        drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
-
-    } else if (featureKey === 'provinces') {
-        document.getElementById('cctv-overlay').style.opacity = '0.3';
-        PH_HOTSPOT_LOCATIONS.forEach(loc => {
-            let hotspotCircle = new google.maps.Circle({
-                strokeColor: '#D97706',
-                strokeOpacity: 0.6,
-                strokeWeight: 1.5,
-                fillColor: '#FBBF24',
-                fillOpacity: 0.15,
-                map: map,
-                center: { lat: loc.lat, lng: loc.lng },
-                radius: 35000 
-            });
-            activeHotspotCircles.push(hotspotCircle);
-            activeMapMarkers.push(new google.maps.Marker({
-                position: { lat: loc.lat, lng: loc.lng },
-                map: map,
-                title: loc.name
-            }));
-        });
-        map.setCenter({ lat: 13.0000, lng: 122.0000 }); 
-        map.setZoom(6);
-    }
-}
-
-function triggerScanReport() {
-    const modal = document.getElementById('scan-telemetry-modal');
-    const logContainer = document.getElementById('telemetry-log');
-    const closeBtn = document.getElementById('telemetry-close-btn');
-    
-    const opName = document.getElementById('operator-name-input')?.value || "John Doe";
-    const opPhone = document.getElementById('operator-phone-input')?.value || "+63 917 123 4567";
-    const targetCity = document.getElementById('operator-city-input')?.value || currentScannedLocationName;
-
-    logContainer.innerHTML = "";
-    modal.classList.remove('hidden');
-    closeBtn.disabled = true;
-    closeBtn.classList.add('opacity-40', 'cursor-not-allowed');
-
-    const telemetryLogs = [
-        `[INFO] Initializing CCTV Surveillance Frame...`,
-        `[SCAN] Locking geometric focus to area layer...`,
-        `[DATA] Coordinates locked: ${map ? map.getCenter().lat().toFixed(4) : "14.5615"}, ${map ? map.getCenter().lng().toFixed(4) : "121.0260"}`,
-        `[WARN] Structural collision checking against active fault matrices...`,
-        `[ALERT] Critical intersection parameters identified nearby!`,
-        `[CONN] Establishing pipeline to PH National Command Desk (911)...`,
-        `[SEND] Packaging encrypted identity telemetry payload...`,
-        `[DATA] Dispatching Operator: ${opName} (${opPhone})`,
-        `[DATA] Dispatching Base Bounds: ${targetCity}`,
-        `[SUCCESS] Dispatch broadcast verified. Response team units pinged automatically!`
-    ];
-
-    let currentLogIndex = 0;
-    function printNextLog() {
-        if (currentLogIndex < telemetryLogs.length) {
-            const entry = document.createElement('p');
-            entry.className = "border-l-2 pl-2 transition-all duration-200 " + 
-                (telemetryLogs[currentLogIndex].includes('SUCCESS') ? 'border-emerald-400 text-emerald-300 font-bold' : 
-                 telemetryLogs[currentLogIndex].includes('ALERT') ? 'border-red-500 text-red-400' : 'border-gray-500 text-emerald-500/80');
-            
-            entry.innerText = telemetryLogs[currentLogIndex];
-            logContainer.appendChild(entry);
-            logContainer.scrollTop = logContainer.scrollHeight;
-            currentLogIndex++;
-            setTimeout(printNextLog, 450);
-        } else {
-            closeBtn.disabled = false;
-            closeBtn.classList.remove('opacity-40', 'cursor-not-allowed');
-            closeBtn.innerText = "Complete Operational Verification";
-            
-            const banner = document.getElementById('alert-banner');
-            if (banner) {
-                banner.classList.remove('hidden');
-                setTimeout(() => banner.classList.add('hidden'), 7000);
-            }
-        }
-    }
-    printNextLog();
-}
-
-function closeTelemetryModal() {
-    document.getElementById('scan-telemetry-modal').classList.add('hidden');
 }
 
 function navigateTo(targetScreenId, direction = 'right') {
     const currentScreen = document.getElementById(currentScreenId);
     const targetScreen = document.getElementById(targetScreenId);
-    
     if (!targetScreen) return;
 
-    const isSwipeableTarget = SWIPEABLE_SCREENS.includes(targetScreenId);
-    const isSwipeableCurrent = SWIPEABLE_SCREENS.includes(currentScreenId);
-    let isSwipeNav = false;
-
-    if (isSwipeableTarget && isSwipeableCurrent) {
-        const currentIndex = SWIPEABLE_SCREENS.indexOf(currentScreenId);
-        const targetIndex = SWIPEABLE_SCREENS.indexOf(targetScreenId);
-        if (Math.abs(currentIndex - targetIndex) === 1) {
-            isSwipeNav = true;
-        }
-    }
-
-    if (isSwipeNav) {
-        const currentIndex = SWIPEABLE_SCREENS.indexOf(currentScreenId);
-        const targetIndex = SWIPEABLE_SCREENS.indexOf(targetScreenId);
-        direction = targetIndex > currentIndex ? 'right' : 'left';
-    }
-
     currentScreen.classList.remove('screen-visible');
-
-    if (direction === 'right') {
-        currentScreen.classList.add('screen-hidden-left');
-    } else {
-        currentScreen.classList.add('screen-hidden-right');
-    }
-    
+    currentScreen.classList.add(direction === 'right' ? 'screen-hidden-left' : 'screen-hidden-right');
     targetScreen.classList.remove('screen-hidden-left', 'screen-hidden-right');
 
     setTimeout(() => {
         targetScreen.classList.add('screen-visible');
-
-        setTimeout(() => {
-            if (direction === 'right') {
-                currentScreen.classList.remove('screen-hidden-left');
-            } else {
-                currentScreen.classList.remove('screen-hidden-right');
-            }
-        }, 400); 
-
-        targetScreen.scrollTop = 0;
-        
         if (targetScreenId === 'map-screen') {
-            if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
-                initMap();
-                document.getElementById('cctv-overlay').style.opacity = '0.4';
-            } else {
-                document.getElementById('map-container').innerHTML = `<div class="p-8 text-center text-xs text-gray-500 flex flex-col items-center justify-center h-full"><i class="fas fa-triangle-exclamation text-xl text-amber-500 mb-2"></i>Google Maps script loading layer failed. Ensure active internet network state.</div>`;
-            }
-        } else {
-            const overlay = document.getElementById('cctv-overlay');
-            if(overlay) overlay.style.opacity = '0';
+            initMap();
+        } else if (targetScreenId === 'contacts-screen') {
+            setTimeout(initEspanaMap, 200);
         }
 
         if (SWIPEABLE_SCREENS.includes(targetScreenId)) {
@@ -370,31 +323,53 @@ function navigateTo(targetScreenId, direction = 'right') {
     }, 10); 
 }
 
+function triggerScanReport() {
+    const modal = document.getElementById('scan-telemetry-modal');
+    const logContainer = document.getElementById('telemetry-log');
+    const closeBtn = document.getElementById('telemetry-close-btn');
+    
+    logContainer.innerHTML = "";
+    modal.classList.remove('hidden');
+    closeBtn.disabled = true;
+
+    const telemetryLogs = [
+        `[INFO] Target lock enabled on Manila Central Monitor...`,
+        `[SCAN] Verifying geometric parameters near España...`,
+        `[SUCCESS] Operational telemetry analysis completed.`
+    ];
+
+    let i = 0;
+    function printLog() {
+        if (i < telemetryLogs.length) {
+            const entry = document.createElement('p');
+            entry.innerText = telemetryLogs[i++];
+            logContainer.appendChild(entry);
+            setTimeout(printLog, 400);
+        } else {
+            closeBtn.disabled = false;
+            closeBtn.classList.remove('opacity-40');
+            closeBtn.innerText = "Verification Complete";
+        }
+    }
+    printLog();
+}
+
+function closeTelemetryModal() {
+    document.getElementById('scan-telemetry-modal').classList.add('hidden');
+}
+
 function setActiveTab(tab) {
     activeTab = tab;
     updateTabs();
 }
 
 function handleContinue() {
-    if (activeTab === 'login') {
-        navigateTo('home-screen', 'right');
-    } else {
-        navigateTo('detailed-signup-screen', 'right');
-    }
+    navigateTo(activeTab === 'login' ? 'home-screen' : 'detailed-signup-screen', 'right');
 }
 
 function togglePasswordVisibility(id) {
     const input = document.getElementById(id);
-    const eyeIcon = document.getElementById(`${id}-eye`);
-    if (input.type === 'password') {
-        input.type = 'text';
-        eyeIcon.classList.remove('fa-eye');
-        eyeIcon.classList.add('fa-eye-slash');
-    } else {
-        input.type = 'password';
-        eyeIcon.classList.remove('fa-eye-slash');
-        eyeIcon.classList.add('fa-eye');
-    }
+    input.type = input.type === 'password' ? 'text' : 'password';
 }
 
 function toggleSidebar() {
@@ -410,31 +385,18 @@ function toggleSidebar() {
     }
 }
 
-function handleSettingsClick() {
-    toggleSidebar();
-    showMessageModal("Sensor threshold customization preferences screen not fully mounted in prototype context.");
-}
-
-function handleTermsClick() {
-    toggleSidebar();
-    showMessageModal("Data Encryption Standard Framework: All structural coordinates collected remain verified strictly locally inside individual tracking device hardware segments.");
-}
-
-function handleLogout() {
-    toggleSidebar();
-    navigateTo('auth-screen', 'left');
-}
+function handleSettingsClick() { toggleSidebar(); showMessageModal("Settings context unavailable."); }
+function handleTermsClick() { toggleSidebar(); showMessageModal("Local encryption standard active."); }
+function handleLogout() { toggleSidebar(); navigateTo('auth-screen', 'left'); }
 
 function updateNavBar(screenId) {
     document.querySelectorAll('.bottom-nav button').forEach(button => {
-        button.classList.remove('text-medium-green');
+        button.classList.remove('text-medium-red');
         button.classList.add('text-nav-color');
     });
 
     const faultImg = document.getElementById('fault-nav-icon');
-    if (faultImg) {
-        faultImg.classList.remove('active-green');
-    }
+    if (faultImg) faultImg.classList.remove('active-red-tint');
 
     const targetTabMapping = {
         'home-screen': 'nav-home',
@@ -448,10 +410,10 @@ function updateNavBar(screenId) {
         const activeButton = document.getElementById(targetButtonId);
         if (activeButton) {
             if (targetButtonId === 'nav-tips') {
-                if (faultImg) faultImg.classList.add('active-green');
+                if (faultImg) faultImg.classList.add('active-red-tint');
             } else {
                 activeButton.classList.remove('text-nav-color');
-                activeButton.classList.add('text-medium-green');
+                activeButton.classList.add('text-medium-red');
             }
         }
     }
@@ -459,26 +421,22 @@ function updateNavBar(screenId) {
 
 function updateTabs() {
     if (activeTab === 'login') {
-        loginTab.classList.add('bg-medium-green', 'text-white');
-        signupTab.classList.remove('bg-medium-green', 'text-white');
+        loginTab.classList.add('bg-medium-red', 'text-white');
+        signupTab.classList.remove('bg-medium-red', 'text-white');
         loginFields.classList.remove('hidden-content');
         signupFields.classList.add('hidden-content');
-        forgotPasswordLink.classList.remove('hidden-content');
         authContinueButton.innerText = 'Authenticate Operator';
     } else {
-        signupTab.classList.add('bg-medium-green', 'text-white');
-        loginTab.classList.remove('bg-medium-green', 'text-white');
+        signupTab.classList.add('bg-medium-red', 'text-white');
+        loginTab.classList.remove('bg-medium-red', 'text-white');
         signupFields.classList.remove('hidden-content');
         loginFields.classList.add('hidden-content');
-        forgotPasswordLink.classList.add('hidden-content');
         authContinueButton.innerText = 'Register Registry Profile';
     }
 }
 
 let touchStartX = 0;
 let touchStartY = 0;
-const swipeThreshold = 50; 
-const lockSwipeY = 30;
 
 mainContentWrapper.addEventListener('touchstart', (e) => {
     if (e.touches.length === 1 && SWIPEABLE_SCREENS.includes(currentScreenId)) {
@@ -487,37 +445,14 @@ mainContentWrapper.addEventListener('touchstart', (e) => {
     }
 });
 
-mainContentWrapper.addEventListener('touchmove', (e) => {
-    const diffY = e.touches[0].clientY - touchStartY;
-    if (Math.abs(e.touches[0].clientX - touchStartX) > Math.abs(diffY)) {
-        if (currentScreenId === 'map-screen') return; 
-        e.preventDefault();
-    }
-}, { passive: false }); 
-
 mainContentWrapper.addEventListener('touchend', (e) => {
-    if (!SWIPEABLE_SCREENS.includes(currentScreenId)) return;
-    if (e.changedTouches.length !== 1) return;
-
-    const touchEndX = e.changedTouches[0].clientX;
-    const touchEndY = e.changedTouches[0].clientY;
-    
-    const diffX = touchEndX - touchStartX;
-    const diffY = touchEndY - touchStartY;
-
-    if (Math.abs(diffX) > swipeThreshold && Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffY) < lockSwipeY) {
+    if (!SWIPEABLE_SCREENS.includes(currentScreenId) || currentScreenId === 'contacts-screen' || currentScreenId === 'map-screen') return;
+    const diffX = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(diffX) > 60) {
         const currentIndex = SWIPEABLE_SCREENS.indexOf(currentScreenId);
-        let newIndex = currentIndex;
-
-        if (diffX > 0) {
-            newIndex = currentIndex > 0 ? currentIndex - 1 : currentIndex;
-        } else {
-            newIndex = currentIndex < SWIPEABLE_SCREENS.length - 1 ? currentIndex + 1 : currentIndex;
-        }
-        
-        const nextPageId = SWIPEABLE_SCREENS[newIndex];
-        if (nextPageId !== currentScreenId) {
-            navigateTo(nextPageId, diffX > 0 ? 'left' : 'right');
+        let newIndex = diffX > 0 ? currentIndex - 1 : currentIndex + 1;
+        if (newIndex >= 0 && newIndex < SWIPEABLE_SCREENS.length) {
+            navigateTo(SWIPEABLE_SCREENS[newIndex], diffX > 0 ? 'left' : 'right');
         }
     }
 });
@@ -526,18 +461,8 @@ function showMessageModal(message) {
     document.getElementById('modal-message').innerText = message;
     document.getElementById('custom-modal').classList.remove('hidden');
 }
-
-function closeModal() {
-    document.getElementById('custom-modal').classList.add('hidden');
-}
+function closeModal() { document.getElementById('custom-modal').classList.add('hidden'); }
 
 window.onload = () => {
     updateTabs();
-    screens.forEach(screen => {
-        if (screen.id !== 'auth-screen') {
-            screen.classList.add('screen-hidden-right');
-        } else {
-            screen.classList.add('screen-visible');
-        }
-    });
 };
