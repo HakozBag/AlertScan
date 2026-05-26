@@ -15,6 +15,7 @@ let activeHotspotCircles = [];
 
 // Base Philippines Coordinate Anchor Positions (Metro Manila Central)
 const PH_BASE_LOCATION = { lat: 14.5615, lng: 121.0260 };
+let currentScannedLocationName = "Makati City, Metro Manila";
 
 // Real-world simulated coordinate geometry tracking for key Active Philippine Fault structures
 const MARIKINA_WEST_FAULT_COORDS = [
@@ -71,19 +72,31 @@ function initMap() {
             map: map,
             title: "Operator Location Node",
             icon: {
-                url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 7,
+                fillColor: "#10B981",
+                fillOpacity: 1,
+                strokeColor: "#ffffff",
+                strokeWeight: 2
             }
+        });
+
+        // Track center target to feed live telemetry variables directly into CCTV display hud overlay
+        map.addListener('bounds_changed', () => {
+            const center = map.getCenter();
+            document.getElementById('hud-lat').innerText = center.lat().toFixed(4);
+            document.getElementById('hud-lng').innerText = center.lng().toFixed(4);
         });
 
         // Initialize Google Maps Native Drawing Manager Component
         drawingManager = new google.maps.drawing.DrawingManager({
             drawingMode: null,
-            drawingControl: false, // Hidden standard toolbar to rely on our custom HTML navbar layout choices
+            drawingControl: false, 
             polygonOptions: {
-                fillColor: '#5691b2',
-                fillOpacity: 0.35,
-                strokeColor: '#5691b2',
-                strokeWeight: 3,
+                fillColor: '#10b981',
+                fillOpacity: 0.25,
+                strokeColor: '#10b981',
+                strokeWeight: 2,
                 clickable: true,
                 editable: true,
                 zIndex: 1
@@ -94,17 +107,8 @@ function initMap() {
         // Bind callback listener for complete geometry construction events handled by Google Maps engine
         google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
             activeMapPolygons.push(polygon);
-            drawingManager.setDrawingMode(null); // Return to default map pan interactions immediately after placement
-            
-            // Extract and calculate the coordinate path length parameters dynamically
-            const vertices = polygon.getPath();
-            let coordinatesSummary = [];
-            for (let i = 0; i < vertices.getLength(); i++) {
-                let xy = vertices.getAt(i);
-                coordinatesSummary.push(`[${xy.lat().toFixed(4)}, ${xy.lng().toFixed(4)}]`);
-            }
-
-            showMessageModal(`Area Scan Polygon successfully registered! Monitored Vertices Count: ${vertices.getLength()}. Geometry loaded inside tracking buffer registers successfully.`);
+            drawingManager.setDrawingMode(null); 
+            triggerScanReport();
         });
 
         // Trigger default active visual components immediately on map paint sequence
@@ -130,6 +134,7 @@ function geocodeSearch() {
         if (status === "OK" && results[0]) {
             map.setCenter(results[0].geometry.location);
             map.setZoom(13);
+            currentScannedLocationName = results[0].formatted_address;
             
             let searchMarker = new google.maps.Marker({
                 map: map,
@@ -137,10 +142,17 @@ function geocodeSearch() {
                 animation: google.maps.Animation.DROP
             });
             activeMapMarkers.push(searchMarker);
+            triggerCctvFlash();
         } else {
             showMessageModal("Unable to isolate administrative boundaries for specified criteria. Try another Philippine municipality name.");
         }
     });
+}
+
+function triggerCctvFlash() {
+    const overlay = document.getElementById('cctv-overlay');
+    overlay.style.opacity = '1';
+    setTimeout(() => { overlay.style.opacity = '0.4'; }, 600);
 }
 
 /**
@@ -185,6 +197,7 @@ function clearMapOverlays() {
  */
 function toggleMapFeatures(featureKey, elementReference) {
     clearMapOverlays();
+    triggerCctvFlash();
 
     document.querySelectorAll('.map-feature-btn').forEach(btn => {
         btn.classList.remove('bg-app-blue', 'text-white');
@@ -197,17 +210,16 @@ function toggleMapFeatures(featureKey, elementReference) {
     }
 
     if (featureKey === 'faults') {
-        // Construct native Google Maps Polyline structure referencing West Valley coordinate trace tracks
+        document.getElementById('cctv-overlay').style.opacity = '0.5';
         activePolylineFault = new google.maps.Polyline({
             path: MARIKINA_WEST_FAULT_COORDS,
             geodesic: true,
             strokeColor: '#DC2626',
             strokeOpacity: 0.85,
-            strokeWeight: 5,
+            strokeWeight: 4,
             map: map
         });
 
-        // Place custom info windows over specific critical fault segments
         MARIKINA_WEST_FAULT_COORDS.forEach((coord, index) => {
             if (index % 2 === 0) {
                 let faultMarker = new google.maps.Marker({
@@ -215,73 +227,107 @@ function toggleMapFeatures(featureKey, elementReference) {
                     map: map,
                     icon: {
                         path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                        scale: 3,
+                        scale: 2.5,
                         strokeColor: "#DC2626"
                     }
                 });
-                
-                let infoWindow = new google.maps.InfoWindow({
-                    content: `<div class="p-1"><b class="text-red-600">Active Trace Node #${index+1}</b><br><span class="text-xs text-gray-600">West Valley Structural Subsystem Line</span></div>`
-                });
-
-                faultMarker.addListener('click', () => infoWindow.open(map, faultMarker));
                 activeMapMarkers.push(faultMarker);
             }
         });
-
         map.setCenter(MARIKINA_WEST_FAULT_COORDS[2]);
         map.setZoom(11);
 
     } else if (featureKey === 'draw') {
+        document.getElementById('cctv-overlay').style.opacity = '0.8';
         drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
-        showMessageModal("Drawing profile initialized. Tap unique point vertices on the map framework canvas below to assemble your bounding box envelope scan.");
 
     } else if (featureKey === 'provinces') {
+        document.getElementById('cctv-overlay').style.opacity = '0.3';
         PH_HOTSPOT_LOCATIONS.forEach(loc => {
             let hotspotCircle = new google.maps.Circle({
                 strokeColor: '#D97706',
-                strokeOpacity: 0.8,
-                strokeWeight: 2,
+                strokeOpacity: 0.6,
+                strokeWeight: 1.5,
                 fillColor: '#FBBF24',
-                fillOpacity: 0.25,
+                fillOpacity: 0.15,
                 map: map,
                 center: { lat: loc.lat, lng: loc.lng },
-                radius: 40000 // 40 Kilometer Tracking Vulnerability Radii Groupings
+                radius: 35000 
             });
             activeHotspotCircles.push(hotspotCircle);
-
-            let marker = new google.maps.Marker({
+            activeMapMarkers.push(new google.maps.Marker({
                 position: { lat: loc.lat, lng: loc.lng },
                 map: map,
-                title: loc.name,
-                label: { text: "⚠", color: "#B45309", fontWeight: "bold" }
-            });
-            
-            let infoWindow = new google.maps.InfoWindow({
-                content: `<div class="p-2"><h4 class="font-bold text-gray-800">${loc.name}</h4><p class="text-xs text-amber-700">${loc.risk}</p></div>`
-            });
-            marker.addListener('click', () => infoWindow.open(map, marker));
-            
-            activeMapMarkers.push(marker);
+                title: loc.name
+            }));
         });
-
-        map.setCenter({ lat: 12.0000, lng: 122.0000 }); // Frame out standard aggregate macro view bounds of PH archipelago region
+        map.setCenter({ lat: 13.0000, lng: 122.0000 }); 
         map.setZoom(6);
     }
 }
 
 /**
- * Handle structural scan calculations and matching hotline notification reports
+ * Simulated Telemetry Live Stream and Automatic Dispatch Integration
  */
 function triggerScanReport() {
-    showMessageModal("Running structural polygon intersection algorithm... Geometry scan safe bounds match zero immediate rupture offsets. Target Philippine Hotlines notified of baseline reporting parameters.");
+    const modal = document.getElementById('scan-telemetry-modal');
+    const logContainer = document.getElementById('telemetry-log');
+    const closeBtn = document.getElementById('telemetry-close-btn');
     
-    // Flash structural notification banner on home board dashboard layout positions
-    const banner = document.getElementById('alert-banner');
-    if (banner) {
-        banner.classList.remove('hidden');
-        setTimeout(() => banner.classList.add('hidden'), 8000);
+    // Read dynamic user settings inputs if configured
+    const opName = document.getElementById('operator-name-input')?.value || "John Doe";
+    const opPhone = document.getElementById('operator-phone-input')?.value || "+63 917 123 4567";
+    const targetCity = document.getElementById('operator-city-input')?.value || currentScannedLocationName;
+
+    logContainer.innerHTML = "";
+    modal.classList.remove('hidden');
+    closeBtn.disabled = true;
+    closeBtn.classList.add('opacity-40', 'cursor-not-allowed');
+
+    const telemetryLogs = [
+        `[INFO] Initializing CCTV Surveillance Frame...`,
+        `[SCAN] Locking geometric focus to area layer...`,
+        `[DATA] Coordinates locked: ${map ? map.getCenter().lat().toFixed(4) : "14.5615"}, ${map ? map.getCenter().lng().toFixed(4) : "121.0260"}`,
+        `[WARN] Structural collision checking against active fault matrices...`,
+        `[ALERT] Critical intersection parameters identified nearby!`,
+        `[CONN] Establishing pipeline to PH National Command Desk (911)...`,
+        `[SEND] Packaging encrypted identity telemetry payload...`,
+        `[DATA] Dispatching Operator: ${opName} (${opPhone})`,
+        `[DATA] Dispatching Base Bounds: ${targetCity}`,
+        `[SUCCESS] Dispatch broadcast verified. Response team units pinged automatically!`
+    ];
+
+    let currentLogIndex = 0;
+    function printNextLog() {
+        if (currentLogIndex < telemetryLogs.length) {
+            const entry = document.createElement('p');
+            entry.className = "border-l-2 pl-2 transition-all duration-200 " + 
+                (telemetryLogs[currentLogIndex].includes('SUCCESS') ? 'border-emerald-400 text-emerald-300 font-bold' : 
+                 telemetryLogs[currentLogIndex].includes('ALERT') ? 'border-red-500 text-red-400' : 'border-gray-500 text-emerald-500/80');
+            
+            entry.innerText = telemetryLogs[currentLogIndex];
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            currentLogIndex++;
+            setTimeout(printNextLog, 450);
+        } else {
+            closeBtn.disabled = false;
+            closeBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+            closeBtn.innerText = "Complete Operational Verification";
+            
+            // Flash notification header banner
+            const banner = document.getElementById('alert-banner');
+            if (banner) {
+                banner.classList.remove('hidden');
+                setTimeout(() => banner.classList.add('hidden'), 7000);
+            }
+        }
     }
+    printNextLog();
+}
+
+function closeTelemetryModal() {
+    document.getElementById('scan-telemetry-modal').classList.add('hidden');
 }
 
 /**
@@ -335,12 +381,15 @@ function navigateTo(targetScreenId, direction = 'right') {
         targetScreen.scrollTop = 0;
         
         if (targetScreenId === 'map-screen') {
-            // Lazy load initialization callback checks against external Google endpoint script libraries
             if (typeof google !== 'undefined' && typeof google.maps !== 'undefined') {
                 initMap();
+                document.getElementById('cctv-overlay').style.opacity = '0.4';
             } else {
-                document.getElementById('map-container').innerHTML = `<div class="p-8 text-center text-xs text-gray-500 flex flex-col items-center justify-center h-full"><i class="fas fa-triangle-exclamation text-xl text-amber-500 mb-2"></i>Google Maps API Script blocked or structural key tokens missing. Check network settings.</div>`;
+                document.getElementById('map-container').innerHTML = `<div class="p-8 text-center text-xs text-gray-500 flex flex-col items-center justify-center h-full"><i class="fas fa-triangle-exclamation text-xl text-amber-500 mb-2"></i>Google Maps script loading layer failed. Ensure active internet network state.</div>`;
             }
+        } else {
+            const overlay = document.getElementById('cctv-overlay');
+            if(overlay) overlay.style.opacity = '0';
         }
 
         if (SWIPEABLE_SCREENS.includes(targetScreenId)) {
@@ -403,7 +452,7 @@ function toggleOfflineMode() {
         }
         if (homeOfflineText) homeOfflineText.innerText = 'Online State';
 
-        showMessageModal("Offline Cache Mode engaged. Mapping canvas traces use pre-fetched vector boundaries. Geo-computations fallback to estimated approximations.");
+        showMessageModal("Offline Cache Mode engaged. Mapping canvas traces use pre-fetched vector boundaries.");
     } else {
         phoneFrame.classList.remove('grayscale-mode');
         offlineModeIcon.classList.remove('fa-plug-circle-bolt');
@@ -474,6 +523,7 @@ function updateNavBar(screenId) {
     }
 }
 
+// Structural switch layout commands
 function updateTabs() {
     if (activeTab === 'login') {
         loginTab.classList.add('bg-medium-green', 'text-white');
@@ -508,9 +558,7 @@ mainContentWrapper.addEventListener('touchstart', (e) => {
 mainContentWrapper.addEventListener('touchmove', (e) => {
     const diffY = e.touches[0].clientY - touchStartY;
     if (Math.abs(e.touches[0].clientX - touchStartX) > Math.abs(diffY)) {
-        // Prevent default browser viewport adjustments when moving purposefully across interactive grid screens
-        const activeContainerMap = document.getElementById('map-container');
-        if (currentScreenId === 'map-screen') return; // Do not interrupt drag pan logic if user interactions hit the Google canvas wrapper layer
+        if (currentScreenId === 'map-screen') return; 
         e.preventDefault();
     }
 }, { passive: false }); 
