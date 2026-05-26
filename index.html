@@ -376,16 +376,19 @@
             </div>
 
             <div id="profile-screen" class="screen screen-hidden-right profile-screen-layout">
-                <div class="flex flex-col items-center p-6 bg-slate-50 border-b border-slate-100">
-                    <button onclick="navigateTo('home-screen', 'right')" class="absolute top-[50px] left-4 p-2 z-10 text-slate-600">
-                        <i class="fas fa-arrow-left text-2xl"></i>
-                    </button>
-                    <div class="w-24 h-24 rounded-full bg-red-100 flex items-center justify-center border-4 border-white shadow-lg mb-3">
-                        <i class="fas fa-user-gear text-4xl text-medium-red"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-slate-800">Operator John Doe</h2>
-                    <p class="text-sm text-slate-500">MDRRMO Base Station, PH</p>
-                </div>
+    <div class="flex flex-col items-center justify-center text-center p-6 pt-20 bg-slate-50 border-b border-slate-100 relative">
+        <button onclick="navigateTo('home-screen', 'right')" class="absolute top-[50px] left-4 p-2 z-10 text-slate-600">
+            <i class="fas fa-arrow-left text-2xl"></i>
+        </button>
+        
+        <div class="mt-4 flex flex-col items-center justify-center">
+            <div class="w-24 h-24 rounded-full bg-red-100 flex items-center justify-center border-4 border-white shadow-lg mb-4">
+                <i class="fas fa-user-gear text-4xl text-medium-red"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800">Operator John Doe</h2>
+            <p class="text-sm text-slate-500 mt-1">MDRRMO Base Station, PH</p>
+        </div>
+    </div>
                 
                 <div class="p-6 space-y-6 flex-grow overflow-y-auto scrolling-content-area transition-colors duration-300">
                     <div class="space-y-4 p-4 rounded-xl bg-card-bg shadow-inner border border-slate-100">
