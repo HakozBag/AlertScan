@@ -388,7 +388,7 @@
             </div>
 
             <div id="contacts-screen" class="screen screen-hidden-right">
-                <div class="px-6 mt-4">
+                <div class="px-6 mt-4 flex flex-col h-full overflow-y-auto scrolling-content-area pb-12">
                     <h2 class="text-2xl font-bold text-gray-800 mb-4">PH Emergency Hotlines</h2>
                     
                     <div class="space-y-4">
@@ -423,11 +423,48 @@
                         </div>
                     </div>
 
-                    <button class="w-full mt-6 py-3 border-2 border-dashed border-gray-300 text-gray-500 rounded-xl hover:bg-gray-50 transition">
+                    <div class="mt-6 pt-4 border-t">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-building-flag text-app-blue mr-2 text-lg"></i> LGU Disaster Desks
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-xl shadow-sm">
+                                <div>
+                                    <p class="font-semibold text-sm text-gray-800">Makati LGU Command (MDRRMO)</p>
+                                    <p class="text-xs text-gray-500">Hotline: (02) 8870-1000</p>
+                                </div>
+                                <button onclick="showMessageModal('Routing call to Makati LGU Command Center...')" class="text-app-blue hover:text-blue-700 text-lg">
+                                    <i class="fas fa-phone-flip"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-xl shadow-sm">
+                                <div>
+                                    <p class="font-semibold text-sm text-gray-800">Quezon City LGU (QCDRRMO)</p>
+                                    <p class="text-xs text-gray-500">Hotline: Hotline 122</p>
+                                </div>
+                                <button onclick="showMessageModal('Routing call to Quezon City Operations Command Desk...')" class="text-app-blue hover:text-blue-700 text-lg">
+                                    <i class="fas fa-phone-flip"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-xl shadow-sm">
+                                <div>
+                                    <p class="font-semibold text-sm text-gray-800">Marikina Rescue LGU Node</p>
+                                    <p class="text-xs text-gray-500">Hotline: (02) 8646-2436</p>
+                                </div>
+                                <button onclick="showMessageModal('Routing call to Marikina Rescue Dispatched Desk...')" class="text-app-blue hover:text-blue-700 text-lg">
+                                    <i class="fas fa-phone-flip"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="w-full mt-6 py-3 border-2 border-dashed border-gray-300 text-gray-500 rounded-xl hover:bg-gray-50 transition shrink-0">
                         <i class="fas fa-plus mr-2"></i> Register Regional Office Node
                     </button>
                     
-                    <div class="border-t mt-8 pt-6">
+                    <div class="border-t mt-6 pt-4 shrink-0">
                         <h3 class="text-xl font-bold text-gray-800 mb-4">Rapid Dispatch Channels</h3>
                         <div class="grid grid-cols-2 gap-4">
                             <button onclick="showMessageModal('Calling Philippine Red Cross Operations Central...')" class="py-3 px-2 rounded-xl border border-red-500 text-red-600 hover:bg-red-50 flex flex-col items-center justify-center text-center">
@@ -441,11 +478,10 @@
                         </div>
                     </div>
                     
-                    <button onclick="triggerScanReport()" class="w-full mt-10 py-4 rounded-xl text-white text-xl font-bold shadow-lg bg-red-600 hover:bg-red-700 transition duration-300 flex items-center justify-center space-x-3">
+                    <button onclick="triggerScanReport()" class="w-full mt-8 py-4 rounded-xl text-white text-xl font-bold shadow-lg bg-red-600 hover:bg-red-700 transition duration-300 flex items-center justify-center space-x-3 shrink-0">
                         <i class="fas fa-paper-plane text-xl"></i>
                         <span>BROADCAST ALL CHANNELS</span>
                     </button>
-                    <div class="h-8"></div>
                 </div>
             </div>
 
