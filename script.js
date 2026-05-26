@@ -1,22 +1,18 @@
 let activeTab = 'login';
 let currentScreenId = 'auth-screen';
 
-// Google Maps Specific Objects
 let map = null;
 let drawingManager = null;
 let activePolylineFault = null;
 let currentUserMarker = null;
 
-// Track generated elements for quick clearing
 let activeMapPolygons = [];
 let activeMapMarkers = [];
 let activeHotspotCircles = [];
 
-// Base Philippines Coordinate Anchor Positions (Metro Manila Central)
 const PH_BASE_LOCATION = { lat: 14.5615, lng: 121.0260 };
 let currentScannedLocationName = "Makati City, Metro Manila";
 
-// Real-world simulated coordinate geometry tracking for key Active Philippine Fault structures
 const MARIKINA_WEST_FAULT_COORDS = [
     { lat: 14.7022, lng: 121.1010 },
     { lat: 14.6545, lng: 121.0832 },
@@ -32,7 +28,6 @@ const PH_HOTSPOT_LOCATIONS = [
     { name: "Surigao Subduction Node", lat: 9.7800, lng: 125.5000, risk: "Moderate Seismicity Trace" }
 ];
 
-// Target UI Component Elements
 const loginTab = document.getElementById('login-tab');
 const signupTab = document.getElementById('signup-tab');
 const loginFields = document.getElementById('login-fields');
@@ -48,12 +43,8 @@ const mainContentWrapper = document.getElementById('main-content-wrapper');
 const sidebar = document.getElementById('sidebar');
 const sidebarOverlay = document.getElementById('sidebar-overlay');
 
-/**
- * Initialize Google Maps with complete Drawing Framework options
- */
 function initMap() {
     if (map === null) {
-        // Construct basic map layer layout instance inside phone view container boundaries
         map = new google.maps.Map(document.getElementById('map-container'), {
             center: PH_BASE_LOCATION,
             zoom: 12,
@@ -65,7 +56,6 @@ function initMap() {
             ]
         });
 
-        // Current User Marker Anchor placement
         currentUserMarker = new google.maps.Marker({
             position: PH_BASE_LOCATION,
             map: map,
@@ -80,14 +70,12 @@ function initMap() {
             }
         });
 
-        // Track center target to feed live telemetry variables directly into CCTV display hud overlay
         map.addListener('bounds_changed', () => {
             const center = map.getCenter();
             document.getElementById('hud-lat').innerText = center.lat().toFixed(4);
             document.getElementById('hud-lng').innerText = center.lng().toFixed(4);
         });
 
-        // Initialize Google Maps Native Drawing Manager Component
         drawingManager = new google.maps.drawing.DrawingManager({
             drawingMode: null,
             drawingControl: false, 
@@ -103,14 +91,12 @@ function initMap() {
         });
         drawingManager.setMap(map);
 
-        // Bind callback listener for complete geometry construction events handled by Google Maps engine
         google.maps.event.addListener(drawingManager, 'polygoncomplete', function(polygon) {
             activeMapPolygons.push(polygon);
             drawingManager.setDrawingMode(null); 
             triggerScanReport();
         });
 
-        // Trigger default active visual components immediately on map paint sequence
         const defaultButton = document.getElementById('map-nav-fault');
         if (defaultButton) {
             toggleMapFeatures('faults', defaultButton);
@@ -121,9 +107,6 @@ function initMap() {
     }
 }
 
-/**
- * Handle custom Search geocoding and placement shifts
- */
 function geocodeSearch() {
     const query = document.getElementById('map-search-bar').value;
     if (!query || !map) return;
@@ -154,9 +137,6 @@ function triggerCctvFlash() {
     setTimeout(() => { overlay.style.opacity = '0.4'; }, 600);
 }
 
-/**
- * Switch drawing styles based on manual quick action selector commands from Home screen links
- */
 function selectScanMode(mode) {
     setTimeout(() => {
         if (!map || !drawingManager) initMap();
@@ -171,9 +151,6 @@ function selectScanMode(mode) {
     }, 500);
 }
 
-/**
- * Clean up active vector arrays inside map session references
- */
 function clearMapOverlays() {
     if (activePolylineFault) {
         activePolylineFault.setMap(null);
@@ -191,9 +168,6 @@ function clearMapOverlays() {
     }
 }
 
-/**
- * Map Feature Management Layout Engine
- */
 function toggleMapFeatures(featureKey, elementReference) {
     clearMapOverlays();
     triggerCctvFlash();
@@ -265,15 +239,11 @@ function toggleMapFeatures(featureKey, elementReference) {
     }
 }
 
-/**
- * Simulated Telemetry Live Stream and Automatic Dispatch Integration
- */
 function triggerScanReport() {
     const modal = document.getElementById('scan-telemetry-modal');
     const logContainer = document.getElementById('telemetry-log');
     const closeBtn = document.getElementById('telemetry-close-btn');
     
-    // Read dynamic user settings inputs if configured
     const opName = document.getElementById('operator-name-input')?.value || "John Doe";
     const opPhone = document.getElementById('operator-phone-input')?.value || "+63 917 123 4567";
     const targetCity = document.getElementById('operator-city-input')?.value || currentScannedLocationName;
@@ -314,7 +284,6 @@ function triggerScanReport() {
             closeBtn.classList.remove('opacity-40', 'cursor-not-allowed');
             closeBtn.innerText = "Complete Operational Verification";
             
-            // Flash notification header banner
             const banner = document.getElementById('alert-banner');
             if (banner) {
                 banner.classList.remove('hidden');
@@ -329,9 +298,6 @@ function closeTelemetryModal() {
     document.getElementById('scan-telemetry-modal').classList.add('hidden');
 }
 
-/**
- * Frame Routing State Manager Navigation Core
- */
 function navigateTo(targetScreenId, direction = 'right') {
     const currentScreen = document.getElementById(currentScreenId);
     const targetScreen = document.getElementById(targetScreenId);
@@ -465,7 +431,6 @@ function updateNavBar(screenId) {
         button.classList.add('text-nav-color');
     });
 
-    // Reset Fault custom image filter mapping state
     const faultImg = document.getElementById('fault-nav-icon');
     if (faultImg) {
         faultImg.classList.remove('active-green');
@@ -492,7 +457,6 @@ function updateNavBar(screenId) {
     }
 }
 
-// Structural switch layout commands
 function updateTabs() {
     if (activeTab === 'login') {
         loginTab.classList.add('bg-medium-green', 'text-white');
@@ -511,7 +475,6 @@ function updateTabs() {
     }
 }
 
-// Mobile Interface Gestures & Swiping Computation Layout Boundaries
 let touchStartX = 0;
 let touchStartY = 0;
 const swipeThreshold = 50; 
