@@ -53,7 +53,9 @@
                 <span class="text-gray-700 font-medium">Interactive Scanner</span>
             </button>
              <button onclick="navigateTo('tips-screen', 'left'); toggleSidebar();" class="flex items-center space-x-3 py-3 px-2 rounded-lg hover:bg-gray-100 transition duration-150">
-                <i class="fas fa-shield-halved w-6 text-gray-600"></i>
+                <div class="w-6 flex justify-center">
+                    <img src="https://static.thenounproject.com/png/852782-200.png" class="sidebar-fault-icon" alt="Fault Parameters">
+                </div>
                 <span class="text-gray-700 font-medium">Fault Parameters</span>
             </button>
              <button onclick="navigateTo('contacts-screen', 'left'); toggleSidebar();" class="flex items-center space-x-3 py-3 px-2 rounded-lg hover:bg-gray-100 transition duration-150">
@@ -104,8 +106,8 @@
                     <i class="fas fa-map text-lg"></i>
                     <span class="text-xs font-medium mt-1">Map View</span>
                 </button>
-                <button id="nav-tips" onclick="navigateTo('tips-screen')" class="flex flex-col items-center text-nav-color hover:text-medium-green transition duration-150" data-target-screen="tips-screen">
-                    <i class="fas fa-circle-nodes text-lg"></i>
+                <button id="nav-tips" onclick="navigateTo('tips-screen')" class="flex flex-col items-center text-nav-color transition duration-150" data-target-screen="tips-screen">
+                    <img src="https://static.thenounproject.com/png/852782-200.png" id="fault-nav-icon" class="w-[20px] h-[20px] custom-fault-tint transition duration-150" alt="Faults">
                     <span class="text-xs font-medium mt-1">Faults</span>
                 </button>
                 <button id="nav-contacts" onclick="navigateTo('contacts-screen')" class="flex flex-col items-center text-nav-color hover:text-medium-green transition duration-150" data-target-screen="contacts-screen">
@@ -248,7 +250,9 @@
                             <span class="text-xs font-bold text-gray-700 text-center leading-tight">Emergency Hotlines</span>
                         </div>
                          <div onclick="navigateTo('tips-screen', 'left')" class="flex flex-col items-center justify-center p-4 h-28 bg-card-bg rounded-2xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer border border-gray-100">
-                            <i class="fas fa-circle-info text-3xl text-yellow-600 mb-2"></i>
+                            <div class="mb-2">
+                                <img src="https://static.thenounproject.com/png/852782-200.png" class="w-[32px] h-[32px] menu-fault-tint" alt="Faults">
+                            </div>
                             <span class="text-xs font-bold text-gray-700 text-center leading-tight">Risk Parameters Guide</span>
                         </div>
                     </div>
