@@ -465,6 +465,12 @@ function updateNavBar(screenId) {
         button.classList.add('text-nav-color');
     });
 
+    // Reset Fault custom image filter mapping state
+    const faultImg = document.getElementById('fault-nav-icon');
+    if (faultImg) {
+        faultImg.classList.remove('active-green');
+    }
+
     const targetTabMapping = {
         'home-screen': 'nav-home',
         'map-screen': 'nav-map',
@@ -476,8 +482,12 @@ function updateNavBar(screenId) {
     if (targetButtonId) {
         const activeButton = document.getElementById(targetButtonId);
         if (activeButton) {
-            activeButton.classList.remove('text-nav-color');
-            activeButton.classList.add('text-medium-green');
+            if (targetButtonId === 'nav-tips') {
+                if (faultImg) faultImg.classList.add('active-green');
+            } else {
+                activeButton.classList.remove('text-nav-color');
+                activeButton.classList.add('text-medium-green');
+            }
         }
     }
 }
