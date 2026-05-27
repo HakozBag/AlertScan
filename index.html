@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlertScan Mobile App</title>
+    <title>ThreatScan Mobile App</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -42,7 +42,7 @@
         
         <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
         <div id="sidebar" class="p-4 flex flex-col pt-8">
-            <h2 class="text-xl font-bold text-medium-red mb-6 border-b pb-2">AlertScan Menu</h2>
+            <h2 class="text-xl font-bold text-medium-red mb-6 border-b pb-2">ThreatScan Menu</h2>
             
             <button onclick="navigateTo('home-screen', 'right'); toggleSidebar();" class="flex items-center space-x-3 py-3 px-2 rounded-lg hover:bg-slate-50 transition duration-150">
                 <i class="fas fa-chart-radar w-6 text-slate-500"></i>
@@ -89,7 +89,7 @@
             </button>
             <div class="logo-container flex items-center space-x-2">
                 <i class="fas fa-chart-radar text-2xl text-medium-red animate-pulse"></i>
-                <span class="font-bold text-slate-800 tracking-tight">AlertScan</span>
+                <span class="font-bold text-slate-800 tracking-tight">ThreatScan</span>
             </div>
             <button onclick="navigateTo('profile-screen', 'left')" class="w-8 h-8 flex items-center justify-center text-slate-700 hover:text-medium-red transition">
                 <i class="fas fa-circle-user text-xl"></i>
@@ -132,7 +132,7 @@
 
             <div id="auth-screen" class="screen screen-visible px-6 flex flex-col items-center">
                 <div class="text-center mt-8">
-                    <h1 class="text-3xl font-bold text-medium-red tracking-tight">AlertScan</h1>
+                    <h1 class="text-3xl font-bold text-medium-red tracking-tight">ThreatScan</h1>
                     <p class="text-sm text-slate-500 mt-2">Geospatial Hazard Evaluation Platform</p>
                 </div>
 
@@ -407,7 +407,7 @@
     <div id="scan-telemetry-modal" class="fixed inset-0 bg-slate-950/80 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-red-500/30 p-6 rounded-2xl shadow-2xl w-full max-w-xs font-mono text-red-400">
             <div class="flex items-center justify-between border-b border-red-500/30 pb-2 mb-4">
-                <span class="text-xs font-bold tracking-widest animate-pulse">📡 ALERTSCAN TERMINAL</span>
+                <span class="text-xs font-bold tracking-widest animate-pulse">📡 THREATSCAN TERMINAL</span>
                 <div class="w-2 h-2 bg-rose-500 rounded-full animate-ping"></div>
             </div>
             <div id="telemetry-log" class="text-[10px] space-y-2 min-h-[160px] max-h-[220px] overflow-y-auto mb-4 scrolling-content-area"></div>
@@ -419,7 +419,7 @@
 
     <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-xs text-center">
-            <h3 class="text-xl font-bold text-medium-red mb-4">AlertScan Terminal</h3>
+            <h3 class="text-xl font-bold text-medium-red mb-4">ThreatScan Terminal</h3>
             <p id="modal-message" class="text-slate-600 text-sm mb-6"></p>
             <button onclick="closeModal()" class="w-full py-3 rounded-xl text-white font-bold gradient-button-bg hover:shadow-lg transition duration-300">
                 Acknowledge Data
