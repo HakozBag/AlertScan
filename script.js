@@ -9,7 +9,13 @@ let currentUserMarker = null;
 let faultArrows = [];
 let hotspotCircles = [];
 let hotspotMarkers = [];
-let userDrawnShapes = []; 
+let randomThreatDots = [];
+
+let clickPolyline = null;
+let clickPolyPoints = [];
+let clickPolyMarkers = [];
+let completedPolygons = [];
+let activeDrawListener = null;
 
 let espanaCameraMarkers = [];
 let activeCameraIndex = null;
@@ -74,27 +80,45 @@ function initMap() {
             }
         });
 
-        drawingManager = new google.maps.drawing.DrawingManager({
-            drawingMode: null,
-            drawingControl: false, 
-            polygonOptions: {
-                fillColor: '#FD1F4A',
-                fillOpacity: 0.35,
-                strokeColor: '#FD1F4A',
-                strokeWeight: 3,
-                editable: true,
-                clickable: true
-            }
+        clickPolyline = new google.maps.Polyline({
+            path: [],
+            geodesic: true,
+            strokeColor: '#06b6d4',
+            strokeOpacity: 0.9,
+            strokeWeight: 3,
+            map: map
         });
-        drawingManager.setMap(map);
 
-        google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event) {
-            userDrawnShapes.push(event.overlay);
-            updateUndoButtonState();
-        });
-        
         createFaultAssets();
         createHotspotAssets();
+        generateRandomThreatDots();
+    }
+}
+
+function generateRandomThreatDots() {
+    randomThreatDots.forEach(dot => dot.setMap(null));
+    randomThreatDots = [];
+
+    const baseLat = PH_BASE_LOCATION.lat;
+    const baseLng = PH_BASE_LOCATION.lng;
+
+    for (let i = 0; i < 15; i++) {
+        const offsetLat = (Math.random() - 0.5) * 0.12;
+        const offsetLng = (Math.random() - 0.5) * 0.12;
+        
+        let threatMarker = new google.maps.Marker({
+            position: { lat: baseLat + offsetLat, lng: baseLng + offsetLng },
+            map: map,
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 5,
+                fillColor: "#dc2626",
+                fillOpacity: 0.9,
+                strokeColor: "#ffffff",
+                strokeWeight: 1.5
+            }
+        });
+        randomThreatDots.push(threatMarker);
     }
 }
 
@@ -161,37 +185,105 @@ function toggleMapFeatures(featureKey, elementReference) {
     const undoControl = document.getElementById('map-undo-control');
     if (undoControl) undoControl.classList.add('hidden');
 
-    drawingManager.setDrawingMode(null);
+    if (activeDrawListener) {
+        google.maps.event.removeListener(activeDrawListener);
+        activeDrawListener = null;
+    }
+
     faultArrows.forEach(arrow => arrow.setMap(null));
     hotspotCircles.forEach(c => c.setMap(null));
     hotspotMarkers.forEach(m => m.setMap(null));
-    userDrawnShapes.forEach(shape => shape.setMap(map)); 
 
     if (featureKey === 'faults') {
         faultArrows.forEach(arrow => arrow.setMap(map));
     } else if (featureKey === 'draw') {
-        drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
         if (undoControl) undoControl.classList.remove('hidden');
         updateUndoButtonState();
+        
+        activeDrawListener = map.addListener('click', function(e) {
+            handleMapClickNode(e.latLng);
+        });
     } else if (featureKey === 'provinces') {
         hotspotCircles.forEach(c => c.setMap(map));
         hotspotMarkers.forEach(m => m.setMap(map));
     }
 }
 
-function undoLastDrawnShape() {
-    if (userDrawnShapes.length > 0) {
-        let lastShape = userDrawnShapes.pop();
-        lastShape.setMap(null); 
-        updateUndoButtonState();
+function handleMapClickNode(latLng) {
+    clickPolyPoints.push(latLng);
+    clickPolyline.setPath(clickPolyPoints);
+
+    let isFirstNode = (clickPolyPoints.length === 1);
+
+    let nodeMarker = new google.maps.Marker({
+        position: latLng,
+        map: map,
+        icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: isFirstNode ? 7 : 5,
+            fillColor: isFirstNode ? "#06b6d4" : "#FD1F4A",
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 2
+        }
+    });
+
+    if (isFirstNode) {
+        nodeMarker.addListener('click', function(e) {
+            if (clickPolyPoints.length >= 3) {
+                closeCurrentPolygon();
+            }
+            e.stop();
+        });
     }
+
+    clickPolyMarkers.push(nodeMarker);
+    updateUndoButtonState();
+}
+
+function closeCurrentPolygon() {
+    let closedPolygon = new google.maps.Polygon({
+        paths: clickPolyPoints,
+        fillColor: '#FD1F4A',
+        fillOpacity: 0.35,
+        strokeColor: '#06b6d4',
+        strokeWeight: 3,
+        map: map
+    });
+
+    completedPolygons.push(closedPolygon);
+
+    clickPolyPoints = [];
+    clickPolyline.setPath([]);
+    clickPolyMarkers.forEach(mkr => mkr.setMap(null));
+    clickPolyMarkers = [];
+
+    updateUndoButtonState();
+}
+
+function undoLastDrawnShape() {
+    if (clickPolyPoints.length > 0) {
+        clickPolyPoints.pop();
+        clickPolyline.setPath(clickPolyPoints);
+        
+        let lastMkr = clickPolyMarkers.pop();
+        if (lastMkr) lastMkr.setMap(null);
+    } else if (completedPolygons.length > 0) {
+        let lastPoly = completedPolygons.pop();
+        lastPoly.setMap(null);
+    }
+    updateUndoButtonState();
 }
 
 function clearAllDrawnShapes() {
-    while(userDrawnShapes.length > 0) {
-        let shape = userDrawnShapes.pop();
-        shape.setMap(null);
-    }
+    clickPolyPoints = [];
+    clickPolyline.setPath([]);
+    clickPolyMarkers.forEach(mkr => mkr.setMap(null));
+    clickPolyMarkers = [];
+
+    completedPolygons.forEach(poly => poly.setMap(null));
+    completedPolygons = [];
+
     updateUndoButtonState();
 }
 
@@ -200,7 +292,9 @@ function updateUndoButtonState() {
     const clearBtn = document.getElementById('map-clear-btn');
     if (!undoBtn || !clearBtn) return;
 
-    if (userDrawnShapes.length === 0) {
+    let hasElements = (clickPolyPoints.length > 0 || completedPolygons.length > 0);
+
+    if (!hasElements) {
         undoBtn.disabled = true;
         undoBtn.classList.add('opacity-40', 'cursor-not-allowed');
         clearBtn.disabled = true;
@@ -280,6 +374,7 @@ function geocodeSearch() {
         if (status === "OK" && results[0]) {
             map.setCenter(results[0].geometry.location);
             map.setZoom(13);
+            generateRandomThreatDots();
         }
     });
 }
@@ -297,6 +392,7 @@ function navigateTo(targetScreenId, direction = 'right') {
         targetScreen.classList.add('screen-visible');
         if (targetScreenId === 'map-screen') {
             initMap();
+            generateRandomThreatDots();
         } else if (targetScreenId === 'contacts-screen') {
             setTimeout(initEspanaMap, 200);
         }
@@ -326,12 +422,10 @@ function triggerScanReport() {
     closeBtn.classList.add('opacity-40');
 
     let customCoordinatesNotice = "Using center viewport array reference...";
-    if (userDrawnShapes.length > 0) {
-        const lastShape = userDrawnShapes[userDrawnShapes.length - 1];
-        if(typeof lastShape.getPath === 'function') {
-            const len = lastShape.getPath().getLength();
-            customCoordinatesNotice = `Captured data boundary envelope containing ${len} unique node bounds.`;
-        }
+    if (completedPolygons.length > 0) {
+        customCoordinatesNotice = `Captured data boundary envelope containing ${completedPolygons.length} custom polygon configurations.`;
+    } else if (clickPolyPoints.length > 0) {
+        customCoordinatesNotice = `Captured ongoing line trace setup with ${clickPolyPoints.length} map coordinate locks.`;
     }
 
     const telemetryLogs = [
