@@ -157,8 +157,8 @@ body::-webkit-scrollbar {
     filter: invert(48%) sepia(13%) saturate(931%) hue-rotate(183deg) brightness(92%) contrast(87%);
 }
 
-.custom-fault-tint.active-green {
-    filter: invert(41%) sepia(90%) saturate(1022%) hue-rotate(159deg) brightness(91%) contrast(93%) !important;
+.custom-fault-tint.active-red-tint {
+    filter: invert(24%) sepia(93%) saturate(3431%) hue-rotate(338deg) brightness(98%) contrast(100%) !important;
 }
 
 .sidebar-fault-icon {
@@ -168,5 +168,5 @@ body::-webkit-scrollbar {
 }
 
 .menu-fault-tint {
-    filter: invert(41%) sepia(90%) saturate(1022%) hue-rotate(159deg) brightness(91%) contrast(93%);
+    filter: invert(24%) sepia(93%) saturate(3431%) hue-rotate(338deg) brightness(98%) contrast(100%);
 }
