@@ -1,5 +1,6 @@
 let activeTab = 'login';
 let currentScreenId = 'auth-screen';
+let currentUserRole = 'staff'; // Configured dynamically: 'staff' or 'user'
 
 let map = null;
 let espanaMap = null;
@@ -57,7 +58,7 @@ const sidebar = document.getElementById('sidebar');
 const sidebarOverlay = document.getElementById('sidebar-overlay');
 
 function initMap() {
-    if (map === null) {
+    if (map === null && currentUserRole === 'staff') {
         map = new google.maps.Map(document.getElementById('map-container'), {
             center: PH_BASE_LOCATION,
             zoom: 12,
@@ -96,6 +97,7 @@ function initMap() {
 }
 
 function generateRandomThreatDots() {
+    if(!map) return;
     randomThreatDots.forEach(dot => dot.setMap(null));
     randomThreatDots = [];
 
@@ -174,6 +176,7 @@ function createHotspotAssets() {
 }
 
 function toggleMapFeatures(featureKey, elementReference) {
+    if(currentUserRole !== 'staff') return;
     document.querySelectorAll('.map-feature-btn').forEach(btn => {
         btn.classList.remove('bg-medium-red', 'text-white');
         btn.classList.add('text-slate-700');
@@ -308,6 +311,7 @@ function updateUndoButtonState() {
 }
 
 function initEspanaMap() {
+    if(currentUserRole !== 'staff') return;
     if (espanaMap === null) {
         espanaMap = new google.maps.Map(document.getElementById('espana-map-container'), {
             center: ESPANA_LOCK_LOCATION,
@@ -379,7 +383,177 @@ function geocodeSearch() {
     });
 }
 
+function applyRoleAccessUIConfiguration() {
+    const mapNavBtn = document.getElementById('nav-map');
+    const cctvNavBtn = document.getElementById('nav-contacts');
+    const sideMapBtn = document.getElementById('sidebar-map-btn');
+    const sideCctvBtn = document.getElementById('sidebar-cctv-btn');
+    const badgeRole = document.getElementById('badge-role-indicator');
+    
+    const staffDash = document.getElementById('staff-dashboard-view');
+    const userDash = document.getElementById('user-dashboard-view');
+    const feedActionViewPoly = document.getElementById('feed-action-view-poly');
+
+    if (currentUserRole === 'staff') {
+        if(mapNavBtn) mapNavBtn.style.display = 'flex';
+        if(cctvNavBtn) cctvNavBtn.style.display = 'flex';
+        if(sideMapBtn) sideMapBtn.style.display = 'flex';
+        if(sideCctvBtn) sideCctvBtn.style.display = 'flex';
+        
+        if(badgeRole) {
+            badgeRole.innerText = "Staff";
+            badgeRole.className = "text-[9px] px-2 py-0.5 rounded-full font-bold bg-rose-100 text-rose-600 uppercase tracking-wide";
+        }
+
+        if(staffDash) staffDash.classList.remove('hidden');
+        if(userDash) userDash.classList.add('hidden');
+        if(feedActionViewPoly) feedActionViewPoly.style.display = 'inline-block';
+
+        document.getElementById('sidebar-dashboard-label').innerText = "Scan Dashboard";
+        document.getElementById('sidebar-faults-label').innerText = "Fault Parameters";
+        document.getElementById('faults-screen-title').innerText = "Philippine Fault Lines";
+        document.getElementById('faults-screen-subtitle').innerText = "Privileged Operational Emergency Directives";
+        
+        document.getElementById('profile-display-name').innerText = "Officer John Doe";
+        document.getElementById('profile-display-role').innerText = "MDRRMO Command Base Center";
+        document.getElementById('profile-input-name').value = "Officer John Doe";
+
+    } else {
+        // Normal User Authentication Config
+        if(mapNavBtn) mapNavBtn.style.display = 'none';
+        if(cctvNavBtn) cctvNavBtn.style.display = 'none';
+        if(sideMapBtn) sideMapBtn.style.display = 'none';
+        if(sideCctvBtn) sideCctvBtn.style.display = 'none';
+        
+        if(badgeRole) {
+            badgeRole.innerText = "User Profile";
+            badgeRole.className = "text-[9px] px-2 py-0.5 rounded-full font-bold bg-blue-100 text-blue-600 uppercase tracking-wide";
+        }
+
+        if(staffDash) staffDash.classList.add('hidden');
+        if(userDash) userDash.classList.remove('hidden');
+        if(feedActionViewPoly) feedActionViewPoly.style.display = 'none';
+
+        document.getElementById('sidebar-dashboard-label').innerText = "User Workspace";
+        document.getElementById('sidebar-faults-label').innerText = "Fault Guidance";
+        document.getElementById('faults-screen-title').innerText = "Fault Safety Information";
+        document.getElementById('faults-screen-subtitle').innerText = "Public Structural Exposure Framework Guide";
+
+        document.getElementById('profile-display-name').innerText = "Civilian User Workspace";
+        document.getElementById('profile-display-role').innerText = "Verified ThreatScan Mobile Profile";
+        document.getElementById('profile-input-name').value = "Civilian Account Profile";
+    }
+
+    renderFaultParametersView();
+}
+
+function renderFaultParametersView() {
+    const container = document.getElementById('faults-parameters-dynamic-container');
+    if (!container) return;
+    container.innerHTML = "";
+
+    if (currentUserRole === 'staff') {
+        container.innerHTML = `
+            <div class="p-4 bg-rose-950/20 border-2 border-rose-600 rounded-xl shadow-md">
+                <div class="flex justify-between items-center mb-1">
+                    <h3 class="font-bold text-base text-rose-600">1. West Valley Fault Grid</h3>
+                    <span class="text-[9px] font-bold px-2 py-0.5 bg-rose-600 text-white uppercase rounded">CRITICAL HAZARD</span>
+                </div>
+                <p class="text-xs text-slate-700 font-bold mb-2">Metrics: High Tectonic Strain | Potential Magnitude: 7.2 M_w</p>
+                <p class="text-xs text-slate-600">The buffer envelope intercepts strategic commercial arterial networks across Metro Manila. Expected damage structural index is exceptionally extreme.</p>
+                <div class="mt-3 p-2.5 bg-rose-50 rounded-lg border border-rose-200">
+                    <p class="text-[11px] font-bold text-rose-700 uppercase tracking-tight flex items-center gap-1">
+                        <i class="fas fa-truck-field"></i> Emergency Suggestion Command:
+                    </p>
+                    <p class="text-xs text-slate-800 font-semibold mt-0.5">Situation is very very bad. Instantly deploy 3 Fire Trucks, 2 Heavy Rescue Emergency Units, and establish primary LGU staging lanes immediately.</p>
+                </div>
+            </div>
+
+            <div class="p-4 bg-amber-950/10 border border-amber-500 rounded-xl shadow-md">
+                <div class="flex justify-between items-center mb-1">
+                    <h3 class="font-bold text-base text-amber-700">2. East Valley Trace</h3>
+                    <span class="text-[9px] font-bold px-2 py-0.5 bg-amber-500 text-white uppercase rounded">ELEVATED RISK</span>
+                </div>
+                <p class="text-xs text-slate-700 font-bold mb-2">Metrics: Moderate Creep Rate | Potential Magnitude: 6.5 M_w</p>
+                <p class="text-xs text-slate-600">Structural strain accumulating in surrounding Rizal province corridors. Vulnerability factors scale high for localized unreinforced masonry setups.</p>
+                <div class="mt-3 p-2.5 bg-amber-50 rounded-lg border border-amber-200">
+                    <p class="text-[11px] font-bold text-amber-800 uppercase tracking-tight flex items-center gap-1">
+                        <i class="fas fa-shield-halved"></i> Emergency Suggestion Command:
+                    </p>
+                    <p class="text-xs text-slate-800 font-semibold mt-0.5">Pre-position 1 Fire Truck and dispatch regular secondary civilian patrol loops to clear evacuation choke-points.</p>
+                </div>
+            </div>
+        `;
+    } else {
+        container.innerHTML = `
+            <div class="p-4 bg-mint-green/60 rounded-xl shadow-md border border-teal-200">
+                <h3 class="font-bold text-base text-slate-800 flex items-center gap-1.5">
+                    <i class="fas fa-heart-pulse text-teal-600"></i> Marikina Valley Fault Info
+                </h3>
+                <p class="text-xs text-slate-600 mt-1">This system has major lines running through parts of Bulacan, Rizal, Metro Manila, and Laguna. Local citizens should look out for official public advisory signals and learn nearby open community assembly points.</p>
+            </div>
+
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl shadow-md">
+                <h3 class="font-bold text-base text-slate-800 flex items-center gap-1.5">
+                    <i class="fas fa-circle-info text-blue-500"></i> What is an Active Fault Zone?
+                </h3>
+                <p class="text-xs text-slate-600 mt-1">It is a fracture line structure on the earth's crust that has shown signs of movement within historical memory. Keeping clear of old brick walls and structures during active seismic anomalies is strongly advised.</p>
+            </div>
+        `;
+    }
+}
+
+function submitUserFeedbackData() {
+    const category = document.getElementById('feedback-category').value;
+    const msg = document.getElementById('feedback-message').value;
+
+    if (!msg.trim()) {
+        showMessageModal("Please supply data message notes into the workspace form text area box before sending.");
+        return;
+    }
+
+    const modal = document.getElementById('scan-telemetry-modal');
+    const logContainer = document.getElementById('telemetry-log');
+    const closeBtn = document.getElementById('telemetry-close-btn');
+    
+    document.getElementById('telemetry-modal-headline').innerText = "📡 PROTOTYPE USER SUBMISSION";
+    logContainer.innerHTML = "";
+    modal.classList.remove('hidden');
+    closeBtn.disabled = true;
+    closeBtn.innerText = "Uploading Form...";
+    closeBtn.classList.add('opacity-40');
+
+    const feedbackLogs = [
+        `[FEEDBACK ENGINE] Initiating civilian telemetry communication uplink...`,
+        `[METRICS] Category flag caught: ${category.toUpperCase()}`,
+        `[PACKING] Injecting localized message parameters safely...`,
+        `[TRANSMIT] Transferring log text strings directly to QA system database nodes...`,
+        `[SUCCESS] Dispatch submission complete. Prototype simulated data saved successfully!`
+    ];
+
+    let i = 0;
+    function printFeedbackLog() {
+        if (i < feedbackLogs.length) {
+            const entry = document.createElement('p');
+            entry.className = "mb-1 text-xs border-l-2 pl-2 border-emerald-500";
+            entry.innerText = feedbackLogs[i++];
+            logContainer.appendChild(entry);
+            setTimeout(printFeedbackLog, 400);
+        } else {
+            closeBtn.disabled = false;
+            closeBtn.classList.remove('opacity-40');
+            closeBtn.innerText = "Close Submission Log";
+            document.getElementById('feedback-message').value = "";
+        }
+    }
+    printFeedbackLog();
+}
+
 function navigateTo(targetScreenId, direction = 'right') {
+    if (currentUserRole !== 'staff' && (targetScreenId === 'map-screen' || targetScreenId === 'contacts-screen')) {
+        return; // Safety guard clause preventing programmatic jumps for normal users
+    }
+
     const currentScreen = document.getElementById(currentScreenId);
     const targetScreen = document.getElementById(targetScreenId);
     if (!targetScreen) return;
@@ -415,6 +589,7 @@ function triggerScanReport() {
     const logContainer = document.getElementById('telemetry-log');
     const closeBtn = document.getElementById('telemetry-close-btn');
     
+    document.getElementById('telemetry-modal-headline').innerText = "🛰️ LGU DISPATCH LINK";
     logContainer.innerHTML = "";
     modal.classList.remove('hidden');
     closeBtn.disabled = true;
@@ -463,7 +638,32 @@ function setActiveTab(tab) {
 }
 
 function handleContinue() {
-    navigateTo(activeTab === 'login' ? 'home-screen' : 'detailed-signup-screen', 'right');
+    const emailField = document.getElementById('login-email-input').value.trim();
+    
+    if (activeTab === 'login') {
+        if (emailField.toLowerCase().endsWith('@threat.com')) {
+            currentUserRole = 'staff';
+        } else if (emailField.toLowerCase().endsWith('@gmail.com')) {
+            currentUserRole = 'user';
+        } else {
+            currentUserRole = 'user'; // Default Fallback safe state assignment
+        }
+        applyRoleAccessUIConfiguration();
+        navigateTo('home-screen', 'right');
+    } else {
+        navigateTo('detailed-signup-screen', 'right');
+    }
+}
+
+function commitDetailedSignupRegistration() {
+    const signupEmail = document.getElementById('signup-email-input').value.trim();
+    if (signupEmail.toLowerCase().endsWith('@threat.com')) {
+        currentUserRole = 'staff';
+    } else {
+        currentUserRole = 'user';
+    }
+    applyRoleAccessUIConfiguration();
+    navigateTo('home-screen', 'right');
 }
 
 function togglePasswordVisibility(id) {
@@ -550,8 +750,14 @@ mainContentWrapper.addEventListener('touchend', (e) => {
     if (Math.abs(diffX) > 60) {
         const currentIndex = SWIPEABLE_SCREENS.indexOf(currentScreenId);
         let newIndex = diffX > 0 ? currentIndex - 1 : currentIndex + 1;
+        
         if (newIndex >= 0 && newIndex < SWIPEABLE_SCREENS.length) {
-            navigateTo(SWIPEABLE_SCREENS[newIndex], diffX > 0 ? 'left' : 'right');
+            let nextScreenKey = SWIPEABLE_SCREENS[newIndex];
+            // Skip map view or cctv views during finger swipes if the user lacks authority privileges
+            if (currentUserRole !== 'staff' && (nextScreenKey === 'map-screen' || nextScreenKey === 'contacts-screen')) {
+                return;
+            }
+            navigateTo(nextScreenKey, diffX > 0 ? 'left' : 'right');
         }
     }
 });
@@ -564,4 +770,5 @@ function closeModal() { document.getElementById('custom-modal').classList.add('h
 
 window.onload = () => {
     updateTabs();
+    applyRoleAccessUIConfiguration();
 };
