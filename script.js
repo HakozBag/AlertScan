@@ -6,11 +6,10 @@ let espanaMap = null;
 let drawingManager = null;
 let currentUserMarker = null;
 
-// Feature Layer Trackers
 let faultArrows = [];
 let hotspotCircles = [];
 let hotspotMarkers = [];
-let userDrawnShapes = []; // Tracks custom shapes created via drawing manager
+let userDrawnShapes = []; 
 
 let espanaCameraMarkers = [];
 let activeCameraIndex = null;
@@ -58,7 +57,7 @@ function initMap() {
             zoom: 12,
             disableDefaultUI: false,
             zoomControl: true,
-            gestureHandling: "cooperative",
+            gestureHandling: "greedy", 
             mapTypeId: google.maps.MapTypeId.ROADMAP
         });
 
@@ -80,13 +79,7 @@ function initMap() {
             drawingControl: false, 
             polygonOptions: {
                 fillColor: '#FD1F4A',
-                fillOpacity: 0.2,
-                strokeColor: '#FD1F4A',
-                strokeWeight: 2,
-                editable: true,
-                clickable: true
-            },
-            polylineOptions: {
+                fillOpacity: 0.35,
                 strokeColor: '#FD1F4A',
                 strokeWeight: 3,
                 editable: true,
@@ -172,13 +165,12 @@ function toggleMapFeatures(featureKey, elementReference) {
     faultArrows.forEach(arrow => arrow.setMap(null));
     hotspotCircles.forEach(c => c.setMap(null));
     hotspotMarkers.forEach(m => m.setMap(null));
-    userDrawnShapes.forEach(shape => shape.setMap(null)); 
+    userDrawnShapes.forEach(shape => shape.setMap(map)); 
 
     if (featureKey === 'faults') {
         faultArrows.forEach(arrow => arrow.setMap(map));
     } else if (featureKey === 'draw') {
         drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
-        userDrawnShapes.forEach(shape => shape.setMap(map)); 
         if (undoControl) undoControl.classList.remove('hidden');
         updateUndoButtonState();
     } else if (featureKey === 'provinces') {
@@ -226,13 +218,12 @@ function initEspanaMap() {
         espanaMap = new google.maps.Map(document.getElementById('espana-map-container'), {
             center: ESPANA_LOCK_LOCATION,
             zoom: 15,
-            disableDefaultUI: true,
-            gestureHandling: "none", 
-            zoomControl: false,
-            draggable: false, 
-            scrollwheel: false,
-            disableDoubleClickZoom: true,
-            keyboardShortcuts: false
+            disableDefaultUI: false,
+            gestureHandling: "greedy",
+            zoomControl: true,
+            draggable: true, 
+            scrollwheel: true,
+            disableDoubleClickZoom: false
         });
 
         ESPANA_CCTV_NODES.forEach((cam, index) => {
@@ -331,24 +322,38 @@ function triggerScanReport() {
     logContainer.innerHTML = "";
     modal.classList.remove('hidden');
     closeBtn.disabled = true;
+    closeBtn.innerText = "Transmitting...";
+    closeBtn.classList.add('opacity-40');
+
+    let customCoordinatesNotice = "Using center viewport array reference...";
+    if (userDrawnShapes.length > 0) {
+        const lastShape = userDrawnShapes[userDrawnShapes.length - 1];
+        if(typeof lastShape.getPath === 'function') {
+            const len = lastShape.getPath().getLength();
+            customCoordinatesNotice = `Captured data boundary envelope containing ${len} unique node bounds.`;
+        }
+    }
 
     const telemetryLogs = [
-        `[INFO] Target lock enabled on Manila Central Monitor...`,
-        `[SCAN] Verifying geometric parameters near España...`,
-        `[SUCCESS] Operational telemetry analysis completed.`
+        `[CONNECTING] Establishing handshakes over encrypted LGU server nodes...`,
+        `[PACKET] ${customCoordinatesNotice}`,
+        `[TRANSMIT] Packaging geometric layout data into GeoJSON format...`,
+        `[ROUTE] Directing hazard parameters to Local Municipal Command Base Center...`,
+        `[SUCCESS] Dispatch update mock simulation delivered flawlessly to LGU portal.`
     ];
 
     let i = 0;
     function printLog() {
         if (i < telemetryLogs.length) {
             const entry = document.createElement('p');
+            entry.className = "mb-1 text-xs border-l-2 pl-2 border-emerald-500";
             entry.innerText = telemetryLogs[i++];
             logContainer.appendChild(entry);
-            setTimeout(printLog, 400);
+            setTimeout(printLog, 500);
         } else {
             closeBtn.disabled = false;
             closeBtn.classList.remove('opacity-40');
-            closeBtn.innerText = "Verification Complete";
+            closeBtn.innerText = "Simulation Complete";
         }
     }
     printLog();
