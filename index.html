@@ -46,9 +46,9 @@
             
             <button onclick="navigateTo('home-screen', 'right'); toggleSidebar();" class="flex items-center space-x-3 py-3 px-2 rounded-lg hover:bg-slate-50 transition duration-150">
                 <i class="fas fa-chart-radar w-6 text-slate-500"></i>
-                <span class="text-slate-700 font-medium">Scan Dashboard</span>
+                <span id="sidebar-dashboard-label" class="text-slate-700 font-medium">Scan Dashboard</span>
             </button>
-            <button onclick="navigateTo('map-screen', 'left'); toggleSidebar();" class="flex items-center space-x-3 py-3 px-2 rounded-lg hover:bg-slate-50 transition duration-150">
+            <button id="sidebar-map-btn" onclick="navigateTo('map-screen', 'left'); toggleSidebar();" class="flex items-center space-x-3 py-3 px-2 rounded-lg hover:bg-slate-50 transition duration-150">
                 <i class="fas fa-map-location-dot w-6 text-slate-500"></i>
                 <span class="text-slate-700 font-medium">Interactive Scanner</span>
             </button>
@@ -56,9 +56,9 @@
                 <div class="w-6 flex justify-center">
                     <img src="https://static.thenounproject.com/png/852782-200.png" class="sidebar-fault-icon" alt="Fault Parameters">
                 </div>
-                <span class="text-slate-700 font-medium">Fault Parameters</span>
+                <span id="sidebar-faults-label" class="text-slate-700 font-medium">Fault Parameters</span>
             </button>
-            <button onclick="navigateTo('contacts-screen', 'left'); toggleSidebar();" class="flex items-center space-x-3 py-3 px-2 rounded-lg hover:bg-slate-50 transition duration-150">
+            <button id="sidebar-cctv-btn" onclick="navigateTo('contacts-screen', 'left'); toggleSidebar();" class="flex items-center space-x-3 py-3 px-2 rounded-lg hover:bg-slate-50 transition duration-150">
                 <i class="fas fa-video w-6 text-slate-500"></i>
                 <span class="text-slate-700 font-medium">CCTV Network</span>
             </button>
@@ -90,6 +90,7 @@
             <div class="logo-container flex items-center space-x-2">
                 <i class="fas fa-chart-radar text-2xl text-medium-red animate-pulse"></i>
                 <span class="font-bold text-slate-800 tracking-tight">ThreatScan</span>
+                <span id="badge-role-indicator" class="text-[9px] px-2 py-0.5 rounded-full font-bold bg-slate-100 text-slate-600 uppercase tracking-wide">User</span>
             </div>
             <button onclick="navigateTo('profile-screen', 'left')" class="w-8 h-8 flex items-center justify-center text-slate-700 hover:text-medium-red transition">
                 <i class="fas fa-circle-user text-xl"></i>
@@ -148,11 +149,12 @@
                 <div class="w-full max-w-sm mt-8 p-6 rounded-3xl bg-card-bg shadow-xl transition-colors duration-300">
                     <div id="login-fields" class="form-content space-y-4">
                         <div class="relative">
-                            <input type="email" placeholder="Agency Email Address" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medium-red focus:border-medium-red outline-none transition duration-150 bg-white text-slate-900">
+                            <input id="login-email-input" type="email" value="officer@Threat.com" placeholder="Agency Email Address" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medium-red focus:border-medium-red outline-none transition duration-150 bg-white text-slate-900">
+                            <p class="text-[10px] text-slate-400 mt-1 px-1">Use <span class="text-medium-red font-semibold">@Threat.com</span> for Staff or <span class="text-app-blue font-semibold">@gmail.com</span> for Normal User</p>
                         </div>
                         <div class="relative">
-                            <input id="login-password" type="password" placeholder="Access Password" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medium-red focus:border-medium-red outline-none transition duration-150 bg-white text-slate-900">
-                            <button onclick="togglePasswordVisibility('login-password')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-medium-red transition duration-150">
+                            <input id="login-password" type="password" value="password123" placeholder="Access Password" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medium-red focus:border-medium-red outline-none transition duration-150 bg-white text-slate-900">
+                            <button onclick="togglePasswordVisibility('login-password')" class="absolute inset-y-0 right-0 pr-4 pt-[2px] flex items-center text-slate-400 hover:text-medium-red transition duration-150">
                                 <i id="login-password-eye" class="fa-regular fa-eye"></i>
                             </button>
                         </div>
@@ -160,7 +162,7 @@
                     
                     <div id="signup-fields" class="form-content space-y-4 hidden-content">
                          <div class="relative">
-                             <input type="email" placeholder="Government/User Email" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medium-red outline-none transition duration-150 bg-white text-slate-900">
+                             <input id="signup-email-input" type="email" placeholder="Government/User Email" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medium-red outline-none transition duration-150 bg-white text-slate-900">
                          </div>
                         <div class="relative">
                             <input id="signup-password" type="password" placeholder="Password (Min. 8 characters)" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-medium-red outline-none transition duration-150 bg-white text-slate-900">
@@ -213,7 +215,7 @@
                         </div>
                     </div>
                     
-                    <button onclick="navigateTo('home-screen', 'right')" class="w-full mt-8 py-4 rounded-xl text-white text-lg font-bold shadow-lg gradient-button-bg hover:shadow-xl transition duration-300">
+                    <button onclick="commitDetailedSignupRegistration()" class="w-full mt-8 py-4 rounded-xl text-white text-lg font-bold shadow-lg gradient-button-bg hover:shadow-xl transition duration-300">
                         Initialize Core Scanner
                     </button>
                     <div class="h-8"></div>
@@ -231,32 +233,78 @@
                         </div>
                     </div>
 
-                    <h2 class="text-2xl font-bold text-slate-800 mb-4">Geospatial Scanning Framework</h2>
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div onclick="navigateTo('map-screen', 'left'); toggleMapFeatures('draw', document.getElementById('map-nav-draw'));" class="flex flex-col items-center justify-center p-4 h-28 bg-card-bg rounded-2xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer border border-slate-100">
-                            <i class="fas fa-draw-polygon text-3xl text-app-blue mb-2"></i>
-                            <span class="text-xs font-bold text-slate-700 text-center leading-tight">Scan Geometry Area</span>
-                        </div>
-                        <div onclick="navigateTo('map-screen', 'left'); toggleMapFeatures('faults', document.getElementById('map-nav-fault'));" class="flex flex-col items-center justify-center p-4 h-28 bg-card-bg rounded-2xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer border border-slate-100">
-                            <i class="fas fa-bezier-curve text-3xl text-rose-500 mb-2"></i>
-                            <span class="text-xs font-bold text-slate-700 text-center leading-tight">Fault Trace System</span>
-                        </div>
-                        <div onclick="navigateTo('contacts-screen', 'left')" class="flex flex-col items-center justify-center p-4 h-28 bg-card-bg rounded-2xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer border border-slate-100">
-                            <i class="fas fa-video text-3xl text-medium-red mb-2"></i>
-                            <span class="text-xs font-bold text-slate-700 text-center leading-tight">CCTV Network</span>
-                        </div>
-                        <div onclick="navigateTo('tips-screen', 'left')" class="flex flex-col items-center justify-center p-4 h-28 bg-card-bg rounded-2xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer border border-slate-100">
-                            <div class="mb-2">
-                                <img src="https://static.thenounproject.com/png/852782-200.png" class="w-[32px] h-[32px] menu-fault-tint" alt="Faults">
+                    <div id="staff-dashboard-view">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-1">Staff Command Center</h2>
+                        <p class="text-xs text-slate-400 mb-4 uppercase tracking-wider font-semibold text-rose-500">Privileged Infrastructure Tools Available</p>
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div onclick="navigateTo('map-screen', 'left'); toggleMapFeatures('draw', document.getElementById('map-nav-draw'));" class="flex flex-col items-center justify-center p-4 h-28 bg-card-bg rounded-2xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer border border-slate-100">
+                                <i class="fas fa-draw-polygon text-3xl text-app-blue mb-2"></i>
+                                <span class="text-xs font-bold text-slate-700 text-center leading-tight">Scan Geometry Area</span>
                             </div>
-                            <span class="text-xs font-bold text-slate-700 text-center leading-tight">Risk Parameters Guide</span>
+                            <div onclick="navigateTo('map-screen', 'left'); toggleMapFeatures('faults', document.getElementById('map-nav-fault'));" class="flex flex-col items-center justify-center p-4 h-28 bg-card-bg rounded-2xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer border border-slate-100">
+                                <i class="fas fa-bezier-curve text-3xl text-rose-500 mb-2"></i>
+                                <span class="text-xs font-bold text-slate-700 text-center leading-tight">Fault Trace System</span>
+                            </div>
+                            <div onclick="navigateTo('contacts-screen', 'left')" class="flex flex-col items-center justify-center p-4 h-28 bg-card-bg rounded-2xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer border border-slate-100">
+                                <i class="fas fa-video text-3xl text-medium-red mb-2"></i>
+                                <span class="text-xs font-bold text-slate-700 text-center leading-tight">CCTV Network</span>
+                            </div>
+                            <div onclick="navigateTo('tips-screen', 'left')" class="flex flex-col items-center justify-center p-4 h-28 bg-card-bg rounded-2xl shadow-md hover:shadow-lg transition duration-150 cursor-pointer border border-slate-100">
+                                <div class="mb-2">
+                                    <img src="https://static.thenounproject.com/png/852782-200.png" class="w-[32px] h-[32px] menu-fault-tint" alt="Faults">
+                                </div>
+                                <span class="text-xs font-bold text-slate-700 text-center leading-tight">Risk Parameters Guide</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                             <div onclick="triggerScanReport()" class="flex items-center justify-center space-x-3 p-4 bg-rose-600 text-white rounded-2xl shadow-lg hover:bg-rose-700 transition duration-150 cursor-pointer">
+                                <i class="fas fa-paper-plane text-xl animate-pulse"></i>
+                                <span class="text-sm font-bold uppercase tracking-wider">Send Region Blueprint</span>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="mb-6">
-                         <div onclick="triggerScanReport()" class="flex items-center justify-center space-x-3 p-4 bg-rose-600 text-white rounded-2xl shadow-lg hover:bg-rose-700 transition duration-150 cursor-pointer">
-                            <i class="fas fa-paper-plane text-xl animate-pulse"></i>
-                            <span class="text-sm font-bold uppercase tracking-wider">Send Region Blueprint</span>
+
+                    <div id="user-dashboard-view" class="hidden">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-1">Vulnerability Core</h2>
+                        <p class="text-xs text-slate-400 mb-4 uppercase tracking-wider font-semibold text-app-blue">Public Monitoring Framework Mode</p>
+                        
+                        <div class="p-4 rounded-2xl border border-slate-100 bg-white shadow-md mb-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-bold text-slate-400 uppercase">Field Telemetry Status</span>
+                                <span class="flex h-2 w-2 relative">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                            </div>
+                            <p class="text-sm text-slate-700 font-medium">GPS Engine Linked to Regional Grid Hotspots.</p>
+                            <button onclick="navigateTo('tips-screen', 'left')" class="w-full mt-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition flex items-center justify-center gap-1">
+                                <i class="fas fa-book-atlas"></i> Review Active Fault Parameters
+                            </button>
+                        </div>
+
+                        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/60 shadow-md mb-6">
+                            <h3 class="text-sm font-bold text-slate-800 mb-3 uppercase tracking-wider flex items-center gap-1">
+                                <i class="fas fa-bug text-rose-500"></i> App Bug Report & Feedback
+                            </h3>
+                            
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-500 mb-1">Submission Category</label>
+                                    <select id="feedback-category" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-white text-slate-800 outline-none focus:ring-1 focus:ring-app-blue">
+                                        <option value="Bug">Critical Error Report (Bug)</option>
+                                        <option value="Performance">Map Canvas Performance Lag</option>
+                                        <option value="Suggestion">UI/UX Feature Feedback Suggestion</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-500 mb-1">Incident / Suggestion Brief Description</label>
+                                    <textarea id="feedback-message" rows="3" placeholder="Please describe what failed or how we can improve your telemetry viewport context..." class="w-full p-3 text-xs border border-slate-200 rounded-xl bg-white text-slate-800 outline-none focus:ring-1 focus:ring-app-blue resize-none"></textarea>
+                                </div>
+                                <button onclick="submitUserFeedbackData()" class="w-full py-2.5 bg-slate-800 text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow hover:bg-slate-950 transition flex items-center justify-center gap-1">
+                                    <i class="fas fa-paper-plane text-[10px]"></i> Transmit Prototype Submission
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -274,8 +322,8 @@
                             </div>
                             <p class="text-slate-600 mb-4">Geometry envelope verified intersecting the West Valley Fault system. Total structural exposure radius is calculated inside 150 meters. Alert signals broadcasted to local networks.</p>
                             <div class="flex justify-around border-t border-slate-100 mt-4 pt-3">
-                                <button class="text-slate-400 hover:text-rose-500"><i class="fas fa-triangle-exclamation mr-1"></i> High Exposure</button>
-                                <button onclick="navigateTo('map-screen','left'); toggleMapFeatures('draw', document.getElementById('map-nav-draw'))" class="text-slate-400 hover:text-medium-red"><i class="fas fa-map-pin mr-1"></i> View Polygon</button>
+                                <span class="text-xs font-bold text-rose-500 flex items-center gap-1"><i class="fas fa-triangle-exclamation"></i> High Exposure</span>
+                                <button id="feed-action-view-poly" onclick="navigateTo('map-screen','left'); toggleMapFeatures('draw', document.getElementById('map-nav-draw'))" class="text-xs font-bold text-slate-400 hover:text-medium-red transition"><i class="fas fa-map-pin mr-1"></i> View Polygon</button>
                             </div>
                         </div>
                     </div>
@@ -325,19 +373,12 @@
 
             <div id="tips-screen" class="screen screen-hidden-right">
                 <div class="px-6 mt-4">
-                    <h2 class="text-2xl font-bold text-slate-800 mb-4">Philippine Fault Lines</h2>
+                    <h2 id="faults-screen-title" class="text-2xl font-bold text-slate-800 mb-1">Philippine Fault Lines</h2>
+                    <p id="faults-screen-subtitle" class="text-xs text-slate-400 mb-4 uppercase tracking-wider font-semibold">Public Structural Information Guide</p>
                     
-                    <div class="space-y-6">
-                        <div class="p-4 bg-mint-green/60 rounded-xl shadow-md">
-                            <h3 class="font-bold text-lg text-slate-800">1. The Marikina Valley Fault System</h3>
-                            <p class="text-sm text-slate-600 mt-1">Consists of two primary structural segments: the West Valley Fault passing through areas of Bulacan, Rizal, Metro Manila, Cavite, and Laguna, alongside the East Valley Fault.</p>
+                    <div id="faults-parameters-dynamic-container" class="space-y-6">
                         </div>
-
-                        <div class="p-4 bg-light-red/40 rounded-xl shadow-md border border-red-100">
-                            <h3 class="font-bold text-lg text-medium-red">2. Philippine Fault Zone (PFZ)</h3>
-                            <p class="text-sm text-slate-600 mt-1">A massive 1,200 km active tectonic structure cutting entirely across the Philippine Archipelago.</p>
-                        </div>
-                    </div>
+                    <div class="h-8"></div>
                 </div>
             </div>
 
@@ -385,8 +426,8 @@
                         <div class="w-24 h-24 rounded-full bg-red-100 flex items-center justify-center border-4 border-white shadow-lg mb-4">
                             <i class="fas fa-user-gear text-4xl text-medium-red"></i>
                         </div>
-                        <h2 class="text-2xl font-bold text-slate-800">Operator John Doe</h2>
-                        <p class="text-sm text-slate-500 mt-1">MDRRMO Base Station, PH</p>
+                        <h2 id="profile-display-name" class="text-2xl font-bold text-slate-800">Operator John Doe</h2>
+                        <p id="profile-display-role" class="text-sm text-slate-500 mt-1">MDRRMO Base Station, PH</p>
                     </div>
                 </div>
                 
@@ -394,8 +435,8 @@
                     <div class="space-y-4 p-4 rounded-xl bg-card-bg shadow-inner border border-slate-100">
                         <h3 class="text-lg font-semibold text-slate-700 border-b pb-2 mb-2">Technical Credentials</h3>
                         <label class="block">
-                            <span class="text-xs font-medium text-slate-400">Operator Name</span>
-                            <input type="text" value="John Doe" class="w-full px-3 py-2 border-b border-slate-200 focus:border-medium-red outline-none transition bg-transparent text-slate-800">
+                            <span class="text-xs font-medium text-slate-400">Profile Identifier</span>
+                            <input id="profile-input-name" type="text" value="John Doe" class="w-full px-3 py-2 border-b border-slate-200 focus:border-medium-red outline-none transition bg-transparent text-slate-800">
                         </label>
                     </div>
                 </div>
@@ -407,7 +448,7 @@
     <div id="scan-telemetry-modal" class="fixed inset-0 bg-slate-950/80 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-emerald-500/30 p-6 rounded-2xl shadow-2xl w-full max-w-xs font-mono text-emerald-400">
             <div class="flex items-center justify-between border-b border-emerald-500/30 pb-2 mb-4">
-                <span class="text-xs font-bold tracking-widest animate-pulse">🛰️ LGU DISPATCH LINK</span>
+                <span id="telemetry-modal-headline" class="text-xs font-bold tracking-widest animate-pulse">🛰️ LGU DISPATCH LINK</span>
                 <div class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></div>
             </div>
             <div id="telemetry-log" class="text-[10px] space-y-2 min-h-[160px] max-h-[220px] overflow-y-auto mb-4 scrolling-content-area text-slate-300"></div>
@@ -430,4 +471,4 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD_adXykHcmLULcji9UGmp-k_GHe8_WTV4&libraries=drawing,geometry,places"></script>
     <script src="script.js"></script>
 </body>
-</html>
+</html>                 
