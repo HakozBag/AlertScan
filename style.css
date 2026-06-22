@@ -49,6 +49,15 @@ body::-webkit-scrollbar {
     display: none;
 }
 
+.screen:not(.screen-visible) {
+    pointer-events: none !important;
+}
+.screen-visible { 
+    transform: translateX(0); 
+    z-index: 10;
+    pointer-events: auto !important;
+}
+
 .profile-screen-layout {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
@@ -110,10 +119,7 @@ body::-webkit-scrollbar {
 
 .screen-hidden-left { transform: translateX(-100%); }
 .screen-hidden-right { transform: translateX(100%); }
-.screen-visible { 
-    transform: translateX(0); 
-    z-index: 10;
-}
+
 .scrolling-content-area { -ms-overflow-style: none; scrollbar-width: none; }
 .scrolling-content-area::-webkit-scrollbar { display: none; }
 
@@ -147,7 +153,6 @@ body::-webkit-scrollbar {
     transform: translateY(-3px) scale(1.08);
 }
 
-/* Custom Tint Filters Optimized for Teal/Slate Palette */
 .custom-fault-tint {
     filter: invert(48%) sepia(13%) saturate(931%) hue-rotate(183deg) brightness(92%) contrast(87%);
 }
