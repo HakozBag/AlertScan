@@ -255,8 +255,8 @@
                     
                     <div class="mb-6">
                          <div onclick="triggerScanReport()" class="flex items-center justify-center space-x-3 p-4 bg-rose-600 text-white rounded-2xl shadow-lg hover:bg-rose-700 transition duration-150 cursor-pointer">
-                            <i class="fas fa-broadcast-tower text-2xl animate-bounce"></i>
-                            <span class="text-sm font-bold uppercase tracking-wider">Broadcast Action Blueprint</span>
+                            <i class="fas fa-paper-plane text-xl animate-pulse"></i>
+                            <span class="text-sm font-bold uppercase tracking-wider">Send Region Blueprint</span>
                         </div>
                     </div>
                     
@@ -315,9 +315,9 @@
                     </div>
 
                     <div class="absolute bottom-[160px] right-6 z-50">
-                        <button onclick="triggerScanReport()" class="flex flex-col items-center justify-center w-20 h-20 bg-rose-600 text-white rounded-full shadow-2xl transform transition duration-200 hover:scale-105 active:scale-95">
-                            <i class="fas fa-qrcode text-2xl"></i>
-                            <span class="text-[10px] font-bold mt-1 text-center leading-none">SCAN<br>POLYGON</span>
+                        <button onclick="triggerScanReport()" class="flex flex-col items-center justify-center w-20 h-20 bg-emerald-600 text-white rounded-full shadow-2xl transform transition duration-200 hover:scale-105 active:scale-95">
+                            <i class="fas fa-paper-plane text-xl"></i>
+                            <span class="text-[10px] font-bold mt-1 text-center leading-none">SEND<br>POLYGON</span>
                         </button>
                     </div>
                 </div>
@@ -376,19 +376,19 @@
             </div>
 
             <div id="profile-screen" class="screen screen-hidden-right profile-screen-layout">
-    <div class="flex flex-col items-center justify-center text-center p-6 pt-20 bg-slate-50 border-b border-slate-100 relative">
-        <button onclick="navigateTo('home-screen', 'right')" class="absolute top-[50px] left-4 p-2 z-10 text-slate-600">
-            <i class="fas fa-arrow-left text-2xl"></i>
-        </button>
-        
-        <div class="mt-4 flex flex-col items-center justify-center">
-            <div class="w-24 h-24 rounded-full bg-red-100 flex items-center justify-center border-4 border-white shadow-lg mb-4">
-                <i class="fas fa-user-gear text-4xl text-medium-red"></i>
-            </div>
-            <h2 class="text-2xl font-bold text-slate-800">Operator John Doe</h2>
-            <p class="text-sm text-slate-500 mt-1">MDRRMO Base Station, PH</p>
-        </div>
-    </div>
+                <div class="flex flex-col items-center justify-center text-center p-6 pt-20 bg-slate-50 border-b border-slate-100 relative">
+                    <button onclick="navigateTo('home-screen', 'right')" class="absolute top-[50px] left-4 p-2 z-10 text-slate-600">
+                        <i class="fas fa-arrow-left text-2xl"></i>
+                    </button>
+                    
+                    <div class="mt-4 flex flex-col items-center justify-center">
+                        <div class="w-24 h-24 rounded-full bg-red-100 flex items-center justify-center border-4 border-white shadow-lg mb-4">
+                            <i class="fas fa-user-gear text-4xl text-medium-red"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-800">Operator John Doe</h2>
+                        <p class="text-sm text-slate-500 mt-1">MDRRMO Base Station, PH</p>
+                    </div>
+                </div>
                 
                 <div class="p-6 space-y-6 flex-grow overflow-y-auto scrolling-content-area transition-colors duration-300">
                     <div class="space-y-4 p-4 rounded-xl bg-card-bg shadow-inner border border-slate-100">
@@ -405,14 +405,14 @@
     </div>
 
     <div id="scan-telemetry-modal" class="fixed inset-0 bg-slate-950/80 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-red-500/30 p-6 rounded-2xl shadow-2xl w-full max-w-xs font-mono text-red-400">
-            <div class="flex items-center justify-between border-b border-red-500/30 pb-2 mb-4">
-                <span class="text-xs font-bold tracking-widest animate-pulse">📡 THREATSCAN TERMINAL</span>
-                <div class="w-2 h-2 bg-rose-500 rounded-full animate-ping"></div>
+        <div class="bg-slate-900 border border-emerald-500/30 p-6 rounded-2xl shadow-2xl w-full max-w-xs font-mono text-emerald-400">
+            <div class="flex items-center justify-between border-b border-emerald-500/30 pb-2 mb-4">
+                <span class="text-xs font-bold tracking-widest animate-pulse">🛰️ LGU DISPATCH LINK</span>
+                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></div>
             </div>
-            <div id="telemetry-log" class="text-[10px] space-y-2 min-h-[160px] max-h-[220px] overflow-y-auto mb-4 scrolling-content-area"></div>
-            <button id="telemetry-close-btn" disabled onclick="closeTelemetryModal()" class="w-full py-2.5 rounded-xl bg-red-600 text-slate-950 font-bold text-xs uppercase tracking-wider opacity-40 cursor-not-allowed transition duration-200">
-                Processing Telemetry...
+            <div id="telemetry-log" class="text-[10px] space-y-2 min-h-[160px] max-h-[220px] overflow-y-auto mb-4 scrolling-content-area text-slate-300"></div>
+            <button id="telemetry-close-btn" disabled onclick="closeTelemetryModal()" class="w-full py-2.5 rounded-xl bg-emerald-600 text-slate-950 font-bold text-xs uppercase tracking-wider opacity-40 cursor-not-allowed transition duration-200">
+                Transmitting Geo-Data...
             </button>
         </div>
     </div>
@@ -427,7 +427,7 @@
         </div>
     </div>
 
-    <script src="https://maps.googleapis.com/maps/api/js?libraries=drawing,geometry,places"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD_adXykHcmLULcji9UGmp-k_GHe8_WTV4&libraries=drawing,geometry,places"></script>
     <script src="script.js"></script>
 </body>
 </html>
